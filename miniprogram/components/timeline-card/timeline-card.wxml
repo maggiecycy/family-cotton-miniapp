@@ -1,0 +1,63 @@
+<view class="card card--{{item.type}}">
+  <view class="head">
+    <view class="tag tag--{{item.type}} {{directionClass}}">{{typeLabel}}</view>
+    <text class="time">{{timeLabel}}</text>
+  </view>
+
+  <block wx:if="{{item.type === 'transfer'}}">
+    <view class="direction" wx:if="{{directionText}}">{{directionText}}</view>
+    <view class="amount-row">
+      <text class="currency">¥</text>
+      <text class="amount">{{item.amount}}</text>
+      <text class="category" wx:if="{{item.category}}">{{item.category}}</text>
+    </view>
+    <view class="remark" wx:if="{{item.remark}}">{{item.remark}}</view>
+    <view class="message" wx:if="{{item.message}}">「{{item.message}}」</view>
+  </block>
+
+  <block wx:elif="{{item.type === 'voice'}}">
+    <voice-player
+      src="{{item.localSrc || item.fileID}}"
+      duration-ms="{{item.durationMs}}"
+      bind:play="onVoicePlay"
+      bind:pause="onVoicePause"
+      bind:ended="onVoiceEnded"
+      bind:stop="onVoicePause"
+    />
+    <view class="message" wx:if="{{item.message}}">{{item.message}}</view>
+  </block>
+
+  <block wx:else>
+    <view class="note-text" wx:if="{{item.text}}">{{item.text}}</view>
+    <view class="note-images" wx:if="{{item.images && item.images.length}}">
+      <image
+        wx:for="{{item.images}}"
+        wx:for-item="img"
+        wx:key="*this"
+        class="note-img"
+        src="{{img}}"
+        mode="aspectFill"
+        data-src="{{img}}"
+        bindtap="onPreviewImage"
+      />
+    </view>
+  </block>
+
+  <view class="reactions">
+    <view
+      class="chip {{myReaction === 'received' ? 'on' : ''}}"
+      data-key="received"
+      bindtap="onReact"
+    >收到了 {{item.reactions.received || 0}}</view>
+    <view
+      class="chip {{myReaction === 'like' ? 'on' : ''}}"
+      data-key="like"
+      bindtap="onReact"
+    >喜欢 {{item.reactions.like || 0}}</view>
+    <view
+      class="chip {{myReaction === 'miss' ? 'on' : ''}}"
+      data-key="miss"
+      bindtap="onReact"
+    >想你了 {{item.reactions.miss || 0}}</view>
+  </view>
+</view>

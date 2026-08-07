@@ -1,0 +1,10 @@
+<view class="avatar {{speaking ? 'is-speaking' : ''}}" bindtap="onTap" bindlongpress="onLongPress">
+  <view class="glow"></view>
+  <image
+    class="photo {{fadeClass}}"
+    src="{{currentSrc}}"
+    mode="aspectFill"
+    lazy-load="{{false}}"
+  />
+  <view class="hint" wx:if="{{showHint}}">点我换表情 · 长按听问候</view>
+</view>

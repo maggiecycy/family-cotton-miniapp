@@ -1,0 +1,69 @@
+<view class="page mine {{demoMode ? 'page--demo' : ''}} {{fontClass}}">
+  <view class="profile">
+    <view class="title">云端小棉袄</view>
+    <view class="role">当前身份：{{roleText}}</view>
+    <view class="desc">记下妈妈的心意，也留下女儿的声音与照片。</view>
+  </view>
+
+  <view class="group">
+    <view class="row">
+      <text>演示模式</text>
+      <switch checked="{{demoMode}}" color="#D96B54" bindchange="onDemoChange" />
+    </view>
+    <view class="row">
+      <text>更大字体</text>
+      <switch checked="{{largerFont}}" color="#D96B54" bindchange="onFontChange" />
+    </view>
+    <view class="row" bindtap="onPickRole">
+      <text>切换体验身份</text>
+      <text class="value">{{roleText}} ›</text>
+    </view>
+    <view class="row" bindtap="onSetCity">
+      <text>天气城市</text>
+      <text class="value">{{weatherCity}} ›</text>
+    </view>
+    <view class="row" bindtap="onResetUnread" wx:if="{{demoMode}}">
+      <text>演示：制造未读角标</text>
+      <text class="value">›</text>
+    </view>
+  </view>
+
+  <view class="group">
+    <view class="row" bindtap="onInvite">
+      <text>家庭邀请码</text>
+      <text class="value">{{inviteCode || '未开通云开发'}} ›</text>
+    </view>
+    <view class="row" bindtap="onBind">
+      <text>输入邀请码绑定</text>
+      <text class="value">›</text>
+    </view>
+  </view>
+
+  <view class="group" wx:if="{{isPublisher}}">
+    <view class="row" bindtap="go" data-url="/pages/publish-transfer/publish-transfer">
+      <text>记一笔心意</text>
+      <text class="value">›</text>
+    </view>
+    <view class="row" bindtap="go" data-url="/pages/publish-voice/publish-voice">
+      <text>发语音</text>
+      <text class="value">›</text>
+    </view>
+    <view class="row" bindtap="go" data-url="/pages/publish-note/publish-note">
+      <text>写小纸条（可带图）</text>
+      <text class="value">›</text>
+    </view>
+  </view>
+
+  <view class="group">
+    <view class="about-title">关于 / 技术说明</view>
+    <view class="about-body">
+      给妈妈：这是女儿做的小程序。钱可以是你给我的生活费，我都记着；也可以以后是我回报你的一点心意。
+    </view>
+    <view class="about-body tech">
+      写真替换：把你的 6 张半身照放进 miniprogram/assets/avatar/（idle/happy/miss/speak/serious/sleepy）。speak 做微张嘴即可。
+    </view>
+    <view class="about-body">
+      隐私：演示模式数据在本地假数据；关掉演示并开通云开发后，真实数据在微信云，仅家庭成员可见。
+    </view>
+  </view>
+</view>

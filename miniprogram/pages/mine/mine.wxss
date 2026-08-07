@@ -1,0 +1,77 @@
+.mine {
+  padding: 28rpx 24rpx 60rpx;
+}
+
+.profile {
+  padding: 36rpx 28rpx;
+  border-radius: 32rpx;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(255, 236, 220, 0.85)),
+    #fff8f2;
+  border: 2rpx solid rgba(90, 55, 40, 0.06);
+  margin-bottom: 22rpx;
+}
+
+.title {
+  font-size: 48rpx;
+  font-weight: 760;
+  color: #3b2a24;
+}
+
+.role {
+  margin-top: 10rpx;
+  color: #c25540;
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.desc {
+  margin-top: 14rpx;
+  color: #7a5c50;
+  font-size: 28rpx;
+  line-height: 1.6;
+}
+
+.group {
+  margin-bottom: 20rpx;
+  border-radius: 28rpx;
+  overflow: hidden;
+  background: rgba(255, 251, 247, 0.92);
+  border: 2rpx solid rgba(90, 55, 40, 0.06);
+}
+
+.row {
+  min-height: 108rpx;
+  padding: 0 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2rpx solid rgba(90, 55, 40, 0.05);
+  font-size: 32rpx;
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.value {
+  color: #8a6b5e;
+  font-size: 28rpx;
+}
+
+.about-title {
+  padding: 28rpx 28rpx 8rpx;
+  font-size: 32rpx;
+  font-weight: 700;
+}
+
+.about-body {
+  padding: 8rpx 28rpx 20rpx;
+  color: #7a5c50;
+  font-size: 28rpx;
+  line-height: 1.65;
+}
+
+.about-body.tech {
+  color: #5d4a42;
+}

@@ -1,0 +1,9 @@
+{
+  "name": "bindFamily",
+  "version": "1.0.0",
+  "description": "创建家庭或通过邀请码绑定妈妈账号",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

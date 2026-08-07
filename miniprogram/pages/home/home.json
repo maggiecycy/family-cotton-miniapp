@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "陪陪我",
+  "usingComponents": {
+    "avatar-girl": "/components/avatar-girl/avatar-girl"
+  }
+}

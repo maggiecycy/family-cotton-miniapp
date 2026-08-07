@@ -1,0 +1,11 @@
+<view class="player {{playing ? 'is-playing' : ''}}">
+  <view class="btn" bindtap="toggle">
+    <view class="icon">{{playing ? '暂停' : '播放'}}</view>
+  </view>
+  <view class="wave">
+    <view class="bar" wx:for="{{bars}}" wx:key="*this" style="height: {{item}}%; animation-delay: {{index * 60}}ms;"></view>
+  </view>
+  <view class="meta">
+    <text class="dur">{{durationText}}</text>
+  </view>
+</view>

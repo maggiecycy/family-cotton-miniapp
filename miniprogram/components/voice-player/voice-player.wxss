@@ -1,0 +1,63 @@
+.player {
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+  padding: 18rpx 20rpx;
+  border-radius: 24rpx;
+  background: rgba(255, 248, 242, 0.9);
+  border: 2rpx solid rgba(217, 107, 84, 0.12);
+}
+
+.btn {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #e07a62, #d96b54);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 10rpx 20rpx rgba(217, 107, 84, 0.25);
+}
+
+.icon {
+  font-size: 26rpx;
+  font-weight: 600;
+}
+
+.wave {
+  flex: 1;
+  height: 56rpx;
+  display: flex;
+  align-items: flex-end;
+  gap: 6rpx;
+}
+
+.bar {
+  width: 8rpx;
+  min-height: 18%;
+  border-radius: 999rpx;
+  background: rgba(217, 107, 84, 0.35);
+}
+
+.is-playing .bar {
+  animation: bounce 700ms ease-in-out infinite alternate;
+  background: rgba(217, 107, 84, 0.75);
+}
+
+.meta {
+  min-width: 72rpx;
+  text-align: right;
+  color: #7a5c50;
+  font-size: 26rpx;
+}
+
+@keyframes bounce {
+  from {
+    transform: scaleY(0.55);
+  }
+  to {
+    transform: scaleY(1.15);
+  }
+}

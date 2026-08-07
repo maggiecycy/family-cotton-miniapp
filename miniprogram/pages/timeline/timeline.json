@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "时光轴",
+  "usingComponents": {
+    "timeline-card": "/components/timeline-card/timeline-card"
+  }
+}

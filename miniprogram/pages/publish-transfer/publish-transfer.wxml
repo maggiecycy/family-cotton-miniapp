@@ -1,0 +1,32 @@
+<view class="page publish {{fontClass}}">
+  <view class="tip">这是心意纪念卡，不是微信支付。默认记录「妈妈给我的支持」；以后也可以记「我给妈妈的回报」。</view>
+
+  <view class="form">
+    <view class="field">
+      <text class="label">方向</text>
+      <picker range="{{directionLabels}}" value="{{directionIndex}}" bindchange="onDirection">
+        <view class="picker">{{directionLabels[directionIndex]}}</view>
+      </picker>
+    </view>
+    <view class="field">
+      <text class="label">金额（元）</text>
+      <input type="digit" placeholder="例如 800" value="{{amount}}" bindinput="onAmount" />
+    </view>
+    <view class="field">
+      <text class="label">分类</text>
+      <picker range="{{categories}}" value="{{categoryIndex}}" bindchange="onCategory">
+        <view class="picker">{{categories[categoryIndex]}}</view>
+      </picker>
+    </view>
+    <view class="field">
+      <text class="label">备注</text>
+      <input placeholder="{{remarkPlaceholder}}" value="{{remark}}" bindinput="onRemark" />
+    </view>
+    <view class="field">
+      <text class="label">想说的话</text>
+      <textarea maxlength="120" placeholder="{{messagePlaceholder}}" value="{{message}}" bindinput="onMessage" />
+    </view>
+  </view>
+
+  <button class="btn-primary submit" loading="{{submitting}}" bindtap="onSubmit">记下一笔心意</button>
+</view>

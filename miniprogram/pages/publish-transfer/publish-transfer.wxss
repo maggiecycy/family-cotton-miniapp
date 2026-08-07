@@ -1,0 +1,54 @@
+.publish {
+  padding: 28rpx 24rpx 80rpx;
+}
+
+.tip {
+  margin-bottom: 20rpx;
+  padding: 20rpx 24rpx;
+  border-radius: 20rpx;
+  background: rgba(224, 163, 90, 0.14);
+  color: #8a5a20;
+  font-size: 26rpx;
+  line-height: 1.5;
+}
+
+.form {
+  border-radius: 28rpx;
+  background: rgba(255, 251, 247, 0.94);
+  border: 2rpx solid rgba(90, 55, 40, 0.06);
+  padding: 8rpx 24rpx 24rpx;
+}
+
+.field {
+  padding: 22rpx 0;
+  border-bottom: 2rpx solid rgba(90, 55, 40, 0.05);
+}
+
+.field:last-child {
+  border-bottom: none;
+}
+
+.label {
+  display: block;
+  margin-bottom: 12rpx;
+  color: #7a5c50;
+  font-size: 26rpx;
+}
+
+input,
+.picker,
+textarea {
+  width: 100%;
+  min-height: 72rpx;
+  font-size: 34rpx;
+  color: #3b2a24;
+}
+
+textarea {
+  min-height: 160rpx;
+  line-height: 1.55;
+}
+
+.submit {
+  margin-top: 36rpx;
+}

@@ -1,0 +1,39 @@
+<view class="page home {{demoMode ? 'page--demo' : ''}} {{fontClass}}">
+  <view class="hero">
+    <avatar-girl
+      expression="{{expression}}"
+      speaking="{{speaking}}"
+      show-hint="{{true}}"
+      bind:change="onExprChange"
+      bind:longpress="onLongGreet"
+    />
+    <view class="hero-shade"></view>
+    <view class="hero-copy">
+      <view class="brand">云端小棉袄</view>
+      <view class="weather" wx:if="{{weatherText}}">{{weatherText}}</view>
+      <view class="greet">{{careLine}}</view>
+    </view>
+  </view>
+
+  <view class="panel">
+    <view class="stats">
+      <view class="stat">
+        <text class="stat-num">{{companionDays}}</text>
+        <text class="stat-label">已陪伴你（天）</text>
+      </view>
+      <view class="stat">
+        <text class="stat-num">{{voiceMonth}}</text>
+        <text class="stat-label">本月语音</text>
+      </view>
+      <view class="stat">
+        <text class="stat-num">{{transferMonth}}</text>
+        <text class="stat-label">本月心意</text>
+      </view>
+    </view>
+
+    <view class="actions">
+      <button class="btn-primary" bindtap="goListen">听女儿留言</button>
+      <button class="btn-secondary" bindtap="goTransfers">看看妈妈的心意</button>
+    </view>
+  </view>
+</view>

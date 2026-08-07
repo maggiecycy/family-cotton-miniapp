@@ -1,0 +1,46 @@
+{
+  "pages": [
+    "pages/home/home",
+    "pages/timeline/timeline",
+    "pages/mine/mine",
+    "pages/publish-transfer/publish-transfer",
+    "pages/publish-voice/publish-voice",
+    "pages/publish-note/publish-note"
+  ],
+  "window": {
+    "navigationBarTitleText": "云端小棉袄",
+    "navigationBarBackgroundColor": "#FFF8F2",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#FFF8F2",
+    "backgroundTextStyle": "dark"
+  },
+  "tabBar": {
+    "color": "#A88878",
+    "selectedColor": "#D96B54",
+    "backgroundColor": "#FFFBF7",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/home/home",
+        "text": "陪陪我",
+        "iconPath": "assets/tab/home.png",
+        "selectedIconPath": "assets/tab/home-active.png"
+      },
+      {
+        "pagePath": "pages/timeline/timeline",
+        "text": "时光轴",
+        "iconPath": "assets/tab/timeline.png",
+        "selectedIconPath": "assets/tab/timeline-active.png"
+      },
+      {
+        "pagePath": "pages/mine/mine",
+        "text": "我的",
+        "iconPath": "assets/tab/mine.png",
+        "selectedIconPath": "assets/tab/mine-active.png"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

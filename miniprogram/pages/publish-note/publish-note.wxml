@@ -1,0 +1,23 @@
+<view class="page publish {{fontClass}}">
+  <view class="form">
+    <view class="label">想对妈妈说的话</view>
+    <textarea
+      maxlength="200"
+      placeholder="写一句暖的，像塞进她口袋的小纸条"
+      value="{{text}}"
+      bindinput="onInput"
+      show-confirm-bar="{{false}}"
+    />
+    <view class="count">{{text.length}}/200</view>
+
+    <view class="label images-label">照片（最多 3 张）</view>
+    <view class="images">
+      <view class="img-wrap" wx:for="{{images}}" wx:key="*this">
+        <image class="img" src="{{item}}" mode="aspectFill" bindtap="onPreview" data-src="{{item}}" />
+        <view class="remove" data-index="{{index}}" bindtap="onRemove">×</view>
+      </view>
+      <view class="add" wx:if="{{images.length < 3}}" bindtap="onChoose">+</view>
+    </view>
+  </view>
+  <button class="btn-primary submit" loading="{{submitting}}" bindtap="onSubmit">放进时光轴</button>
+</view>

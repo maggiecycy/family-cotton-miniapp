@@ -1,0 +1,103 @@
+page {
+  --bg: #fff8f2;
+  --bg-deep: #f7ebe1;
+  --card: #fffbf7;
+  --ink: #3b2a24;
+  --ink-soft: #7a5c50;
+  --accent: #d96b54;
+  --accent-soft: #f0a090;
+  --gold: #e0a35a;
+  --line: rgba(90, 55, 40, 0.08);
+  --safe-bottom: env(safe-area-inset-bottom);
+
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', sans-serif;
+  font-size: 32rpx;
+  line-height: 1.55;
+  box-sizing: border-box;
+}
+
+page.font-larger,
+.font-larger {
+  font-size: 36rpx;
+}
+
+.page {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding-bottom: calc(24rpx + var(--safe-bottom));
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 0%, rgba(255, 210, 180, 0.45), transparent 55%),
+    radial-gradient(ellipse 70% 45% at 90% 10%, rgba(255, 230, 200, 0.5), transparent 50%),
+    linear-gradient(180deg, #fff8f2 0%, #f7ebe1 100%);
+}
+
+.page--demo::before {
+  content: '演示中';
+  position: fixed;
+  top: calc(12rpx + env(safe-area-inset-top));
+  right: 20rpx;
+  z-index: 99;
+  padding: 8rpx 18rpx;
+  border-radius: 999rpx;
+  background: rgba(217, 107, 84, 0.92);
+  color: #fff;
+  font-size: 22rpx;
+  letter-spacing: 1rpx;
+  box-shadow: 0 8rpx 20rpx rgba(217, 107, 84, 0.25);
+}
+
+.btn-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 96rpx;
+  padding: 0 36rpx;
+  border-radius: 28rpx;
+  background: linear-gradient(135deg, #e07a62 0%, #d96b54 55%, #c85a48 100%);
+  color: #fff;
+  font-size: 34rpx;
+  font-weight: 600;
+  border: none;
+  box-shadow: 0 12rpx 28rpx rgba(217, 107, 84, 0.28);
+}
+
+.btn-primary::after {
+  border: none;
+}
+
+.btn-secondary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 96rpx;
+  padding: 0 36rpx;
+  border-radius: 28rpx;
+  background: rgba(255, 255, 255, 0.78);
+  color: var(--ink);
+  font-size: 34rpx;
+  font-weight: 560;
+  border: 2rpx solid rgba(217, 107, 84, 0.22);
+}
+
+.btn-secondary::after {
+  border: none;
+}
+
+.section-title {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.muted {
+  color: var(--ink-soft);
+}
+
+.empty {
+  padding: 80rpx 40rpx;
+  text-align: center;
+  color: var(--ink-soft);
+}

@@ -1,0 +1,9 @@
+{
+  "name": "getWeather",
+  "version": "1.0.0",
+  "description": "查询天气并生成穿衣关心语",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}
