@@ -1,95 +1,47 @@
 # 云端小棉袄 / Family Cotton
 
-给父母用的家庭陪伴微信小程序：写实「虚拟女儿」、时光轴（语音 / 心意 / 小纸条）、首页天气关心。
+给父母的陪伴小程序：写真女儿、时光轴（语音 / 心意 / 纸条）、天气关心。  
+WeChat mini-program for parents: photo avatar, timeline, weather tips.
 
-A WeChat mini-program for family care: photo-style daughter avatar, timeline (voice / transfers / notes), and home weather tips.
+**原生微信小程序 + 云开发**（勿用 uni-app / Taro）
 
-> **原生微信小程序 + 微信云开发** · Native WeChat mini-program + WeChat CloudBase  
-> 不要改成 uni-app / Taro.
+## 开始
 
----
+1. 用 [微信开发者工具](https://developers.weixin.qq.com/miniprogram/dev/devtools/download.html) 导入本仓库
+2. 填真实 AppID（测试号不能开云开发）
+3. 本地放入写真 `miniprogram/assets/avatar/*.jpg`、问候 `assets/audio/greet-*.m4a`（已 gitignore）
+4. 编译；默认演示模式，可不配云
 
-## 接下来做什么 / Next steps
+## 功能
 
-1. **云天气** · Deploy `cloudfunctions/getWeather` → set `QWEATHER_KEY` + `DEFAULT_CITY` → turn off demo mode in「我的」  
-   详见 [`docs/WEATHER_API.md`](docs/WEATHER_API.md)
-2. **本地素材** · Put your photos in `miniprogram/assets/avatar/*.jpg` and greetings in `assets/audio/greet-*.m4a`（已 gitignore，不会进仓库；单文件 <200KB，主包 <1.5MB）
-3. **推送** · Prefer a **private** GitHub repo（见下方）
-4. **上线** · Upload in WeChat DevTools → submit review when ready
+| 页面 | 能力 |
+|------|------|
+| 陪陪我 | 换表情、点图问候、天气穿衣、统计 |
+| 时光轴 | 语音 / 心意（非支付）/ 纸条；未读角标 |
+| 我的 | 演示、字体、身份、城市 |
 
-演示话术 · Demo script: [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md)
+不做：父母发帖、微信支付、AI 对话。
 
----
+## 云与天气
 
-## 快速开始 / Quick start
+见 [`docs/CLOUD_SETUP.md`](docs/CLOUD_SETUP.md)、[`docs/WEATHER_API.md`](docs/WEATHER_API.md)。
 
-1. 安装微信开发者工具 · Install [WeChat DevTools](https://developers.weixin.qq.com/miniprogram/dev/devtools/download.html)
-2. 导入本仓库根目录 · Import the repo root
-3. 填入你的 AppID · Use your AppID（勿用测试号开云开发）
-4. 把写真/录音放到本地 `assets/`（见上）· Add local avatar/audio assets
-5. 编译 · Compile（默认演示模式可先不配云）
+1. 确认 `app.js` 的云环境 ID  
+2. 部署 `login` / `bindFamily` / `getWeather`  
+3. `getWeather` 配 `QWEATHER_KEY`、`DEFAULT_CITY`  
+4. 「我的」关闭演示模式  
 
----
+演示话术：[`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md)
 
-## 功能 / Features
+## 隐私
 
-| | 中文 | English |
-|---|------|---------|
-| 陪陪我 | 换表情、点图听问候、天气穿衣、陪伴统计 | Moods, greet audio, weather tip, stats |
-| 时光轴 | 语音 / 心意（非支付）/ 带图纸条；未读角标 | Voice / memorial transfers / notes; unread badge |
-| 我的 | 演示模式、字体、身份、天气城市 | Demo mode, font, role, city |
+写真与问候音频不进 Git。仓库保持 **Private**。勿提交 API Key。  
+若改 Public，需先清掉历史里的旧头像文件。
 
-**不做** · Out of scope: 父母发帖、微信支付商户、AI 自由对话。
-
----
-
-## 隐私：照片不进 GitHub / Keep photos off GitHub
-
-`.gitignore` 已忽略：
-
-- `miniprogram/assets/avatar/*.{jpg,png,…}`
-- `miniprogram/assets/audio/greet-*.{m4a,wav,mp3}`
-
-本地文件照常使用；`git add` 不会带上它们。
-
-**推荐操作**
-
-1. GitHub 建 **Private** 仓库（家人项目首选）
-2. 提交代码时不要 `git add miniprogram/assets/avatar/` 下的图片
-3. 推送：`git push -u origin main`
-
-**若仓库要公开 Public**
-
-- Initial commit 里曾有旧版 `avatar/*.png`，公开前必须从历史删掉，否则别人仍能翻到。  
-  未推送过可用：删图后 `git filter-repo` / BFG，或重建仓库只提交无图历史。  
-- 或继续用 Private，最省事。
-
-**切勿提交** · Never commit: 和风 `API KEY`、云环境密钥、真实家人语音（除非你有意公开）。
-
----
-
-## 云开发 / Cloud
-
-见 [`docs/CLOUD_SETUP.md`](docs/CLOUD_SETUP.md)。摘要：
-
-1. 开通环境，确认 `miniprogram/app.js` 中 `env`
-2. 部署 `login` / `bindFamily` / `getWeather`
-3. 建库表 + 安全规则 · [`docs/database-security.md`](docs/database-security.md)
-4. 关闭演示模式
-
----
-
-## 结构 / Layout
+## 结构
 
 ```text
-miniprogram/     pages · components · utils · mock · assets(local)
-cloudfunctions/  login · bindFamily · getWeather
-docs/            DEMO_SCRIPT · CLOUD_SETUP · WEATHER_API · FAMILY_MODEL
+miniprogram/      pages · components · utils · mock · assets（本地）
+cloudfunctions/   login · bindFamily · getWeather
+docs/
 ```
-
----
-
-## License / 说明
-
-私人家庭项目；公开前请自行确认素材与隐私合规。  
-Personal family project — review privacy before making the repo public.
