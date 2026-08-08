@@ -35,8 +35,8 @@ WeChat mini-program for parents: photo avatar, timeline, weather tips.
 
 ## 隐私
 
-写真与问候音频不进 Git。仓库保持 **Private**。勿提交 API Key。  
-若改 Public，需先清掉历史里的旧头像文件。
+写真与问候音频不进 Git（gitignore）。勿提交 API Key。  
+历史中的旧头像 PNG 已清理；本地写真请勿 `git add -f`。
 
 ## 结构
 
