@@ -23,8 +23,8 @@ function getMockNonTransfer() {
     {
       _id: 'mock-voice-1',
       type: 'voice',
-      fileID: '/assets/audio/demo-voice.wav',
-      localSrc: '/assets/audio/demo-voice.wav',
+      fileID: '/assets/audio/demo-voice.m4a',
+      localSrc: '/assets/audio/demo-voice.m4a',
       durationMs: 2500,
       createdAt: daysAgo(0, 20, 12),
       message: '妈，我到家啦，今天挺顺利的。',
@@ -41,8 +41,8 @@ function getMockNonTransfer() {
     {
       _id: 'mock-voice-2',
       type: 'voice',
-      fileID: '/assets/audio/demo-voice.wav',
-      localSrc: '/assets/audio/demo-voice.wav',
+      fileID: '/assets/audio/demo-voice.m4a',
+      localSrc: '/assets/audio/demo-voice.m4a',
       durationMs: 2500,
       createdAt: daysAgo(3, 18, 22),
       message: '周末会给你打电话，你先好好休息。',
@@ -67,8 +67,8 @@ function getMockNonTransfer() {
     {
       _id: 'mock-voice-3',
       type: 'voice',
-      fileID: '/assets/audio/demo-voice.wav',
-      localSrc: '/assets/audio/demo-voice.wav',
+      fileID: '/assets/audio/demo-voice.m4a',
+      localSrc: '/assets/audio/demo-voice.m4a',
       durationMs: 2500,
       createdAt: daysAgo(14, 22, 8),
       message: '晚安，妈。梦里见。',

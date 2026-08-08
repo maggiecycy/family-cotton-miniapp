@@ -14,6 +14,8 @@ miniprogram/assets/avatar/*.png
 miniprogram/assets/avatar/*.webp
 miniprogram/assets/audio/greet-*.wav
 miniprogram/assets/audio/greet-*.mp3
+miniprogram/assets/audio/greet-*.m4a
+miniprogram/assets/audio/greet-*.aac
 
 # 允许说明文档进仓库
 !miniprogram/assets/avatar/README.md

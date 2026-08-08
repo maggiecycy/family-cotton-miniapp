@@ -13,7 +13,7 @@ A WeChat mini-program for family care: photo-style daughter avatar, timeline (vo
 
 1. **云天气** · Deploy `cloudfunctions/getWeather` → set `QWEATHER_KEY` + `DEFAULT_CITY` → turn off demo mode in「我的」  
    详见 [`docs/WEATHER_API.md`](docs/WEATHER_API.md)
-2. **本地素材** · Put your photos in `miniprogram/assets/avatar/*.jpg` and greetings in `assets/audio/greet-*.wav`（已 gitignore，不会进仓库）
+2. **本地素材** · Put your photos in `miniprogram/assets/avatar/*.jpg` and greetings in `assets/audio/greet-*.m4a`（已 gitignore，不会进仓库；单文件 <200KB，主包 <1.5MB）
 3. **推送** · Prefer a **private** GitHub repo（见下方）
 4. **上线** · Upload in WeChat DevTools → submit review when ready
 
@@ -48,7 +48,7 @@ A WeChat mini-program for family care: photo-style daughter avatar, timeline (vo
 `.gitignore` 已忽略：
 
 - `miniprogram/assets/avatar/*.{jpg,png,…}`
-- `miniprogram/assets/audio/greet-*.wav`
+- `miniprogram/assets/audio/greet-*.{m4a,wav,mp3}`
 
 本地文件照常使用；`git add` 不会带上它们。
 
