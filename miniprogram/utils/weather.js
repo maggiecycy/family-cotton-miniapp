@@ -40,6 +40,12 @@ async function fetchWeather(city) {
   try {
     const app = getApp()
     if (!app || app.globalData.demoMode || !app.globalData.cloudReady) {
+      const reason = !app
+        ? 'no-app'
+        : app.globalData.demoMode
+          ? 'demoMode'
+          : 'cloudNotReady'
+      console.warn('fetchWeather skip cloud:', reason)
       const mock = mockWeather()
       if (resolvedCity) mock.city = resolvedCity
       return mock
@@ -49,16 +55,26 @@ async function fetchWeather(city) {
       data: { city: resolvedCity }
     })
     const data = (res && res.result) || {}
-    if (!data.ok) return mockWeather()
+    if (!data.ok) {
+      console.warn('fetchWeather cloud returned not ok', data)
+      const mock = mockWeather()
+      if (resolvedCity) mock.city = resolvedCity
+      return mock
+    }
+    // qweather = 真天气；fallback = 云函数已通但 Key/API 失败，仍是假数据
     return {
       city: data.city || resolvedCity || '本地',
       temp: data.temp,
       text: data.text || '',
       advice: data.advice || clothingAdvice(data.temp),
-      source: 'cloud'
+      source: data.source || 'cloud',
+      warning: data.warning || ''
     }
   } catch (e) {
-    console.warn('fetchWeather fallback mock', e)
+    // -501000 env check invalid → app.js 环境与云开发控制台不一致
+    // FUNCTION_NOT_FOUND → getWeather 尚未上传部署
+    const msg = (e && (e.errMsg || e.message)) || String(e)
+    console.warn('fetchWeather callFunction failed', msg, e)
     const mock = mockWeather()
     if (resolvedCity) mock.city = resolvedCity
     return mock

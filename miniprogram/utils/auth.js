@@ -15,19 +15,30 @@ function isPublisher() {
   return getRole() === 'daughter'
 }
 
+/** 妈妈 / 爸爸：都是观看者，可看可轻反馈，不可发布 */
+function isParent() {
+  const role = getRole()
+  return role === 'mom' || role === 'dad' || role === 'parent'
+}
+
 function isMom() {
   return getRole() === 'mom'
 }
 
 function canPublish() {
-  // 演示模式下也允许开发者切换到女儿身份体验发布页
   return isPublisher()
+}
+
+function canReact() {
+  return isParent() || isPublisher() || getRole() === 'guest'
 }
 
 function roleLabel(role) {
   const map = {
     daughter: '女儿（发布者）',
     mom: '妈妈（观看者）',
+    dad: '爸爸（观看者）',
+    parent: '家长（观看者）',
     guest: '访客（未绑定）'
   }
   return map[role] || map.guest
@@ -36,7 +47,9 @@ function roleLabel(role) {
 module.exports = {
   getRole,
   isPublisher,
+  isParent,
   isMom,
   canPublish,
+  canReact,
   roleLabel
 }

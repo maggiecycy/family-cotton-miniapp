@@ -13,7 +13,7 @@ function ensureDemoSeed() {
     wx.setStorageSync(STORAGE_KEYS.demoMode, true)
   }
   if (!wx.getStorageSync(STORAGE_KEYS.fontScale)) {
-    wx.setStorageSync(STORAGE_KEYS.fontScale, 'larger')
+    wx.setStorageSync(STORAGE_KEYS.fontScale, 'normal')
   }
   if (!wx.getStorageSync(STORAGE_KEYS.role)) {
     wx.setStorageSync(STORAGE_KEYS.role, 'guest')

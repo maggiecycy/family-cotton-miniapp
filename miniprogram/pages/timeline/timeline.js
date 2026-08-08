@@ -1,4 +1,4 @@
-const { fetchTimeline, reactTimeline } = require('../../utils/cloud')
+const { fetchTimeline, reactTimeline, fetchTransferStats } = require('../../utils/cloud')
 const { canPublish } = require('../../utils/auth')
 const { markTimelineRead, refreshTimelineBadge } = require('../../utils/unread')
 
@@ -8,6 +8,7 @@ Page({
     fontClass: 'font-larger',
     canPublish: false,
     filter: 'all',
+    transferRange: 'year',
     filters: [
       { key: 'all', label: '全部' },
       { key: 'voice', label: '语音' },
@@ -15,7 +16,16 @@ Page({
       { key: 'note', label: '纸条' }
     ],
     list: [],
-    speakingId: ''
+    speakingId: '',
+    fabOpen: false,
+    stats: {
+      incomeTotal: 0,
+      expenseTotal: 0,
+      incomeCount: 0,
+      incomeMax: 0,
+      incomeMin: 0,
+      incomeAvg: 0
+    }
   },
 
   onShow() {
@@ -25,13 +35,14 @@ Page({
       wx.removeStorageSync('timelineFilter')
       this.setData({ filter: preferred })
     }
+    const transferRange = wx.getStorageSync('transferRange') || 'year'
     this.setData({
       demoMode: !!app.globalData.demoMode,
       fontClass: app.globalData.fontScale === 'larger' ? 'font-larger' : '',
-      canPublish: canPublish()
+      canPublish: canPublish(),
+      transferRange
     })
     this.loadList()
-    // 进入时光轴即视为已读
     markTimelineRead()
   },
 
@@ -43,7 +54,11 @@ Page({
     wx.showNavigationBarLoading()
     try {
       const list = await fetchTimeline(this.data.filter)
-      this.setData({ list })
+      const patch = { list }
+      if (this.data.filter === 'transfer') {
+        patch.stats = await fetchTransferStats(this.data.transferRange)
+      }
+      this.setData(patch)
     } catch (e) {
       wx.showToast({ title: '加载失败', icon: 'none' })
     } finally {
@@ -54,6 +69,12 @@ Page({
   onFilter(e) {
     const key = e.currentTarget.dataset.key
     this.setData({ filter: key }, () => this.loadList())
+  },
+
+  onRange(e) {
+    const transferRange = e.currentTarget.dataset.range
+    wx.setStorageSync('transferRange', transferRange)
+    this.setData({ transferRange }, () => this.loadList())
   },
 
   async onReact(e) {
@@ -81,17 +102,14 @@ Page({
     this.setData({ speakingId: '' })
   },
 
-  goPublishMenu() {
-    wx.showActionSheet({
-      itemList: ['记一笔心意', '发语音', '写小纸条'],
-      success: (res) => {
-        const urls = [
-          '/pages/publish-transfer/publish-transfer',
-          '/pages/publish-voice/publish-voice',
-          '/pages/publish-note/publish-note'
-        ]
-        wx.navigateTo({ url: urls[res.tapIndex] })
-      }
-    })
+  toggleFab() {
+    this.setData({ fabOpen: !this.data.fabOpen })
+  },
+
+  goPublish(e) {
+    const url = e.currentTarget.dataset.url
+    this.setData({ fabOpen: false })
+    if (!url) return
+    wx.navigateTo({ url })
   }
 })

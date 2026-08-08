@@ -1,3 +1,5 @@
+const { getTransferTimeline, monthTransferCount } = require('../utils/transferLedger')
+
 const DEFAULT_LINES = [
   '妈，我在呢。今天也要开心一点。',
   '记得吃饭，别只顾着忙。',
@@ -16,7 +18,7 @@ function daysAgo(n, hour = 19, minute = 30) {
   return d.getTime()
 }
 
-function getMockTimeline() {
+function getMockNonTransfer() {
   return [
     {
       _id: 'mock-voice-1',
@@ -27,18 +29,6 @@ function getMockTimeline() {
       createdAt: daysAgo(0, 20, 12),
       message: '妈，我到家啦，今天挺顺利的。',
       reactions: { received: 1, like: 1, miss: 0 }
-    },
-    {
-      _id: 'mock-transfer-1',
-      type: 'transfer',
-      direction: 'mom_to_daughter',
-      amount: 800,
-      currency: 'CNY',
-      category: '生活费',
-      remark: '妈妈的心意',
-      message: '妈，我收到了，会好好吃饭的。谢谢你。',
-      createdAt: daysAgo(1, 12, 8),
-      reactions: { received: 1, like: 0, miss: 1 }
     },
     {
       _id: 'mock-note-1',
@@ -59,41 +49,17 @@ function getMockTimeline() {
       reactions: { received: 1, like: 0, miss: 0 }
     },
     {
-      _id: 'mock-transfer-2',
-      type: 'transfer',
-      direction: 'mom_to_daughter',
-      amount: 200,
-      currency: 'CNY',
-      category: '红包',
-      remark: '妈妈塞的零花',
-      message: '这笔我记下了，想你。',
-      createdAt: daysAgo(5, 9, 15),
-      reactions: { received: 1, like: 1, miss: 1 }
-    },
-    {
       _id: 'mock-note-2',
       type: 'note',
       text: '体检报告放抽屉第二层了，别忘了拿。有不懂的问我。',
-      images: ['/assets/avatar/idle.png'],
+      images: ['/assets/avatar/photo.jpg'],
       createdAt: daysAgo(7, 16, 5),
       reactions: { received: 1, like: 0, miss: 0 }
     },
     {
-      _id: 'mock-transfer-3',
-      type: 'transfer',
-      direction: 'daughter_to_mom',
-      amount: 99,
-      currency: 'CNY',
-      category: '小小心意',
-      remark: '给妈妈买点水果',
-      message: '以后工作了，我会更常记得回报你。',
-      createdAt: daysAgo(10, 11, 30),
-      reactions: { received: 1, like: 0, miss: 1 }
-    },
-    {
       _id: 'mock-note-3',
       type: 'note',
-      text: '演示模式说明：这些都是示例数据。真实绑定后会换成我们家的留言。',
+      text: '妈，这些心意我都记着。以后我也能更常回报你。',
       images: [],
       createdAt: daysAgo(12, 10, 0),
       reactions: { received: 0, like: 0, miss: 0 }
@@ -109,22 +75,30 @@ function getMockTimeline() {
       createdBy: 'daughter',
       reactions: { received: 1, like: 1, miss: 1 }
     }
-  ].sort((a, b) => b.createdAt - a.createdAt)
+  ]
+}
+
+function getMockTimeline(transferRange = 'year') {
+  const transfers = getTransferTimeline(transferRange).filter((t) => t.status !== 'refunded')
+  return getMockNonTransfer()
+    .concat(transfers)
+    .sort((a, b) => b.createdAt - a.createdAt)
 }
 
 function getMockStats() {
-  const list = getMockTimeline()
+  const voices = getMockNonTransfer().filter((i) => i.type === 'voice')
   const now = new Date()
   let voiceMonth = 0
-  let transferMonth = 0
-  list.forEach((item) => {
+  voices.forEach((item) => {
     const d = new Date(item.createdAt)
     if (d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()) {
-      if (item.type === 'voice') voiceMonth += 1
-      if (item.type === 'transfer') transferMonth += 1
+      voiceMonth += 1
     }
   })
-  return { voiceMonth, transferMonth }
+  return {
+    voiceMonth,
+    transferMonth: monthTransferCount(now)
+  }
 }
 
 function getMockDailyLine(dateKey) {

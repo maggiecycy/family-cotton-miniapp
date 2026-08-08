@@ -9,6 +9,43 @@
     >{{item.label}}</view>
   </view>
 
+  <view class="stats-panel" wx:if="{{filter === 'transfer'}}">
+    <view class="range-row">
+      <text class="range-label">时间范围</text>
+      <view class="range-tabs">
+        <view class="range {{transferRange === 'year' ? 'on' : ''}}" data-range="year" bindtap="onRange">近一年</view>
+        <view class="range {{transferRange === 'all' ? 'on' : ''}}" data-range="all" bindtap="onRange">全部</view>
+      </view>
+    </view>
+    <view class="stats-grid">
+      <view class="s">
+        <text class="n">{{stats.incomeTotal}}</text>
+        <text class="l">收到家长（元）</text>
+      </view>
+      <view class="s">
+        <text class="n">{{stats.expenseTotal}}</text>
+        <text class="l">我给家长（元）</text>
+      </view>
+      <view class="s">
+        <text class="n">{{stats.incomeCount}}</text>
+        <text class="l">收款笔数</text>
+      </view>
+      <view class="s">
+        <text class="n">{{stats.incomeMax}}</text>
+        <text class="l">单笔最大</text>
+      </view>
+      <view class="s">
+        <text class="n">{{stats.incomeMin}}</text>
+        <text class="l">单笔最小</text>
+      </view>
+      <view class="s">
+        <text class="n">{{stats.incomeAvg}}</text>
+        <text class="l">平均每笔</text>
+      </view>
+    </view>
+    <view class="stats-note">数据来自真实转账凭证 + 后续新记的一笔，可持续更新。</view>
+  </view>
+
   <block wx:if="{{list.length}}">
     <timeline-card
       wx:for="{{list}}"
@@ -22,8 +59,16 @@
   </block>
   <view wx:else class="empty">
     <view class="empty-title">还没有留言</view>
-    <view class="empty-desc">演示模式可以看到效果哦，去「我的」打开演示开关。</view>
+    <view class="empty-desc">点右下角 + 号，发语音 / 记心意 / 写纸条。</view>
   </view>
 
-  <view class="fab" wx:if="{{canPublish}}" bindtap="goPublishMenu">记心意</view>
+  <view class="fab-wrap" wx:if="{{canPublish}}">
+    <view class="fab-menu {{fabOpen ? 'open' : ''}}">
+      <view class="fab-item" data-url="/pages/publish-voice/publish-voice" bindtap="goPublish">发语音</view>
+      <view class="fab-item" data-url="/pages/publish-transfer/publish-transfer" bindtap="goPublish">记心意</view>
+      <view class="fab-item" data-url="/pages/publish-note/publish-note" bindtap="goPublish">写纸条</view>
+    </view>
+    <view class="fab-plus {{fabOpen ? 'open' : ''}}" bindtap="toggleFab">{{fabOpen ? '×' : '+'}}</view>
+  </view>
+  <view class="fab-mask" wx:if="{{fabOpen}}" bindtap="toggleFab"></view>
 </view>

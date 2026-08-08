@@ -3,7 +3,7 @@ const { ensureDemoSeed } = require('./utils/storage')
 App({
   globalData: {
     demoMode: true,
-    fontScale: 'larger',
+    fontScale: 'normal',
     role: 'guest',
     familyId: '',
     userInfo: null,
@@ -43,16 +43,17 @@ App({
 
   initCloud() {
     if (!wx.cloud) {
-      console.warn('基础库过低，无法使用云开发；演示模式仍可用')
+      console.warn('基础库过低，无法使用云开发；本地账本仍可用')
+      this.globalData.cloudReady = false
       return
     }
     try {
-      // 开通云开发后，把 env 换成你的环境 ID
-      wx.cloud.init({
-        env: 'your-env-id',
-        traceUser: true
-      })
+      // 必须写具体环境 ID。部分基础库/工具里 DYNAMIC_CURRENT_ENV 会报：
+      // env check invalid ... not in open list of env: [cloudbase-...]
+      const env = 'cloudbase-d5gkkts0se795c6b3'
+      wx.cloud.init({ env, traceUser: true })
       this.globalData.cloudReady = true
+      this.globalData.cloudEnv = env
     } catch (e) {
       console.warn('cloud init skipped', e)
       this.globalData.cloudReady = false

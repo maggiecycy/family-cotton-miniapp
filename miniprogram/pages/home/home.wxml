@@ -3,19 +3,30 @@
     <avatar-girl
       expression="{{expression}}"
       speaking="{{speaking}}"
-      show-hint="{{true}}"
-      bind:change="onExprChange"
-      bind:longpress="onLongGreet"
+      show-hint="{{false}}"
+      bind:play="onPlayGreet"
     />
     <view class="hero-shade"></view>
-    <view class="hero-copy">
-      <view class="brand">云端小棉袄</view>
-      <view class="weather" wx:if="{{weatherText}}">{{weatherText}}</view>
-      <view class="greet">{{careLine}}</view>
+    <view class="hero-copy {{textAnim}}">
+      <view class="brand">云端小棉袄-曹艳</view>
+      <view class="chips">
+        <view class="chip weather" wx:if="{{expression === 'idle' && weatherText}}">{{weatherText}}</view>
+        <view
+          class="chip weather-demo"
+          wx:if="{{expression === 'idle' && (weatherSource === 'demo' || weatherSource === 'fallback')}}"
+        >{{weatherSource === 'fallback' ? '云端假数据' : '演示'}}</view>
+        <view class="chip holiday" wx:if="{{expression === 'idle' && holidayName}}">{{holidayName}}</view>
+        <view class="chip mood">{{moodLabel}}</view>
+        <view class="chip play" wx:if="{{speaking}}">播放中</view>
+      </view>
+      <view class="greet" bindtap="onPlayGreet">{{careLine}}</view>
+      <view class="hero-actions">
+        <view class="hero-btn ghost" bindtap="onNextMood">换表情</view>
+      </view>
     </view>
   </view>
 
-  <view class="panel">
+  <view class="panel rise-in">
     <view class="stats">
       <view class="stat">
         <text class="stat-num">{{companionDays}}</text>
@@ -33,7 +44,7 @@
 
     <view class="actions">
       <button class="btn-primary" bindtap="goListen">听女儿留言</button>
-      <button class="btn-secondary" bindtap="goTransfers">看看妈妈的心意</button>
+      <button class="btn-secondary" bindtap="goTransfers">看看{{parentWord}}的心意</button>
     </view>
   </view>
 </view>

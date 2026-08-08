@@ -56,9 +56,9 @@ Page({
 
   onPickRole() {
     wx.showActionSheet({
-      itemList: ['女儿（发布者）', '妈妈（观看者）', '访客（未绑定）'],
+      itemList: ['女儿（发布者）', '妈妈（观看者）', '爸爸（观看者）', '访客（未绑定）'],
       success: (res) => {
-        const roles = ['daughter', 'mom', 'guest']
+        const roles = ['daughter', 'mom', 'dad', 'guest']
         getApp().setRole(roles[res.tapIndex])
         this.refresh()
       }
@@ -103,24 +103,33 @@ Page({
       title: '输入家庭邀请码',
       editable: true,
       placeholderText: '例如 COTTON888',
-      success: async (res) => {
+      success: (res) => {
         if (!res.confirm) return
         const code = (res.content || '').trim()
         if (!code) return
-        try {
-          const result = await bindFamily(code)
-          if (result && result.ok) {
-            getApp().globalData.familyId = result.familyId
-            wx.setStorageSync('familyId', result.familyId)
-            getApp().setRole('mom')
-            this.refresh()
-            wx.showToast({ title: '绑定成功', icon: 'success' })
-          } else {
-            wx.showToast({ title: (result && result.message) || '绑定失败', icon: 'none' })
+        wx.showActionSheet({
+          itemList: ['我是妈妈', '我是爸爸'],
+          success: async (pick) => {
+            const role = pick.tapIndex === 1 ? 'dad' : 'mom'
+            try {
+              const result = await bindFamily(code)
+              if (result && result.ok) {
+                getApp().globalData.familyId = result.familyId
+                wx.setStorageSync('familyId', result.familyId)
+                getApp().setRole(role)
+                this.refresh()
+                wx.showToast({
+                  title: role === 'dad' ? '爸爸绑定成功' : '妈妈绑定成功',
+                  icon: 'success'
+                })
+              } else {
+                wx.showToast({ title: (result && result.message) || '绑定失败', icon: 'none' })
+              }
+            } catch (e) {
+              wx.showToast({ title: '绑定失败', icon: 'none' })
+            }
           }
-        } catch (e) {
-          wx.showToast({ title: '绑定失败', icon: 'none' })
-        }
+        })
       }
     })
   },

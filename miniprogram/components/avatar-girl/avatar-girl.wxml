@@ -1,10 +1,22 @@
 <view class="avatar {{speaking ? 'is-speaking' : ''}}" bindtap="onTap" bindlongpress="onLongPress">
-  <view class="glow"></view>
+  <view class="orb orb-a"></view>
+  <view class="orb orb-b"></view>
+  <view class="orb orb-c"></view>
+
+  <!-- 双层叠化：始终两张图在，靠 opacity 交叉淡入 -->
   <image
-    class="photo {{fadeClass}}"
-    src="{{currentSrc}}"
+    class="photo layer {{activeLayer === 'a' ? 'on-top' : ''}}"
+    src="{{srcA}}"
     mode="aspectFill"
-    lazy-load="{{false}}"
+    style="opacity: {{opacityA}};"
   />
-  <view class="hint" wx:if="{{showHint}}">点我换表情 · 长按听问候</view>
+  <image
+    class="photo layer {{activeLayer === 'b' ? 'on-top' : ''}}"
+    src="{{srcB}}"
+    mode="aspectFill"
+    style="opacity: {{opacityB}};"
+  />
+
+  <view class="glow"></view>
+  <view class="hint" wx:if="{{showHint}}">点我听问候录音</view>
 </view>

@@ -23,12 +23,12 @@
 
 ## 天气 API（可选）
 
+详细步骤见 [`WEATHER_API.md`](./WEATHER_API.md)。摘要：
+
 1. 注册 [和风天气](https://dev.qweather.com/) 获取 Key  
-2. 云函数 `getWeather` → 配置环境变量：
-   - `QWEATHER_KEY` = 你的 Key  
-   - `DEFAULT_CITY` = `北京`（或你家城市）  
-3. 「我的」里可改「天气城市」  
-4. 未配置 Key 时云函数也会返回温和假数据，不阻塞演示  
+2. 部署云函数 `getWeather`，配置环境变量 `QWEATHER_KEY`、`DEFAULT_CITY`  
+3. `app.js` 填真实云环境 ID，并关闭演示模式  
+4. 「我的」设置天气城市  
 
 ## 以后：每周 AI 关心短信（未做）
 

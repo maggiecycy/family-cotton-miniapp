@@ -1,8 +1,8 @@
 <view class="page mine {{demoMode ? 'page--demo' : ''}} {{fontClass}}">
   <view class="profile">
-    <view class="title">云端小棉袄</view>
+    <view class="title">云端小棉袄-曹艳</view>
     <view class="role">当前身份：{{roleText}}</view>
-    <view class="desc">记下妈妈的心意，也留下女儿的声音与照片。</view>
+    <view class="desc">女儿发布留言；妈妈、爸爸都可以绑定进来观看、点「收到了」。</view>
   </view>
 
   <view class="group">
@@ -28,42 +28,51 @@
     </view>
   </view>
 
-  <view class="group">
-    <view class="row" bindtap="onInvite">
-      <text>家庭邀请码</text>
-      <text class="value">{{inviteCode || '未开通云开发'}} ›</text>
+  <view class="invite-card">
+    <view class="invite-title">家庭邀请</view>
+    <view class="invite-desc">
+      爸妈都能用：你把邀请码发给他们，他们打开小程序 → 输入邀请码 → 选「妈妈」或「爸爸」绑定。绑定后可看时光轴、听语音、点轻反馈；不能录音发帖。
     </view>
-    <view class="row" bindtap="onBind">
-      <text>输入邀请码绑定</text>
-      <text class="value">›</text>
+
+    <view class="invite-block">
+      <view class="invite-label">我的邀请码（发给家人）</view>
+      <view class="invite-code-row">
+        <text class="invite-code">{{inviteCode}}</text>
+        <view class="invite-btn" bindtap="onInvite">复制</view>
+      </view>
+    </view>
+
+    <view class="invite-block">
+      <view class="invite-label">家人绑定入口（对方看到的步骤）</view>
+      <view class="bind-steps">
+        <view class="step">1. 打开「云端小棉袄-曹艳」</view>
+        <view class="step">2. 进「我的」→ 输入邀请码</view>
+        <view class="step">3. 选择身份：妈妈 / 爸爸</view>
+        <view class="step">4. 完成绑定，即可观看</view>
+      </view>
+      <view class="invite-btn wide" bindtap="onBind">输入邀请码绑定</view>
     </view>
   </view>
 
   <view class="group" wx:if="{{isPublisher}}">
-    <view class="row" bindtap="go" data-url="/pages/publish-transfer/publish-transfer">
-      <text>记一笔心意</text>
-      <text class="value">›</text>
-    </view>
     <view class="row" bindtap="go" data-url="/pages/publish-voice/publish-voice">
       <text>发语音</text>
       <text class="value">›</text>
     </view>
+    <view class="row" bindtap="go" data-url="/pages/publish-transfer/publish-transfer">
+      <text>记心意</text>
+      <text class="value">›</text>
+    </view>
     <view class="row" bindtap="go" data-url="/pages/publish-note/publish-note">
-      <text>写小纸条（可带图）</text>
+      <text>写纸条（可带图）</text>
       <text class="value">›</text>
     </view>
   </view>
 
   <view class="group">
-    <view class="about-title">关于 / 技术说明</view>
+    <view class="about-title">关于</view>
     <view class="about-body">
-      给妈妈：这是女儿做的小程序。钱可以是你给我的生活费，我都记着；也可以以后是我回报你的一点心意。
-    </view>
-    <view class="about-body tech">
-      写真替换：把你的 6 张半身照放进 miniprogram/assets/avatar/（idle/happy/miss/speak/serious/sleepy）。speak 做微张嘴即可。
-    </view>
-    <view class="about-body">
-      隐私：演示模式数据在本地假数据；关掉演示并开通云开发后，真实数据在微信云，仅家庭成员可见。
+      给爸妈：这是女儿曹艳做的小程序。你们给我的心意我都记着；我也会留下语音和小纸条陪你们。
     </view>
   </view>
 </view>

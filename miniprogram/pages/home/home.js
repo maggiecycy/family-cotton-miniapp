@@ -2,16 +2,35 @@ const { fetchDailyLine, fetchHomeStats } = require('../../utils/cloud')
 const { daysBetween } = require('../../utils/date')
 const { fetchWeather } = require('../../utils/weather')
 const { refreshTimelineBadge } = require('../../utils/unread')
+const { getHoliday } = require('../../utils/holiday')
+const { getRole } = require('../../utils/auth')
+const {
+  getState,
+  getLine,
+  getAudio,
+  nextStateKey,
+  parentLabel,
+  DEFAULT_KEY
+} = require('../../utils/homeState')
 
 Page({
   data: {
     demoMode: true,
-    fontClass: 'font-larger',
-    expression: 'idle',
+    fontClass: '',
+    expression: DEFAULT_KEY,
     speaking: false,
+    moodLabel: '默认',
+    viewerRole: 'guest',
+    parentWord: '妈妈',
     dailyLine: '妈，我在呢。',
     careLine: '妈，我在呢。',
     weatherText: '',
+    weatherAdvice: '',
+    weatherSource: 'demo',
+    weatherWarning: '',
+    holidayName: '',
+    holidayLine: '',
+    textAnim: 'text-in',
     companionDays: 1,
     voiceMonth: 0,
     transferMonth: 0
@@ -29,16 +48,37 @@ Page({
 
   onUnload() {
     this.stopGreet()
+    if (this._greetAudio) {
+      this._greetAudio.destroy()
+      this._greetAudio = null
+    }
   },
 
   syncAppState() {
     const app = getApp()
-    const fontScale = app.globalData.fontScale || 'larger'
+    const fontScale = app.globalData.fontScale || 'normal'
+    const viewerRole = getRole()
     this.setData({
       demoMode: !!app.globalData.demoMode,
       fontClass: fontScale === 'larger' ? 'font-larger' : '',
-      companionDays: daysBetween(app.globalData.companionStartAt || Date.now())
+      companionDays: daysBetween(app.globalData.companionStartAt || Date.now()),
+      viewerRole,
+      parentWord: parentLabel(viewerRole)
     })
+  },
+
+  buildCareLine(stateKey) {
+    const key = stateKey || this.data.expression || 'idle'
+    const role = this.data.viewerRole || getRole()
+    if (key === 'idle') {
+      if (this._holiday && this._holiday.line) {
+        // 节日句里的「妈」按身份轻替换
+        const line = this._holiday.line
+        return role === 'dad' ? line.replace(/妈/g, '爸').replace(/妈妈/g, '爸爸') : line
+      }
+      if (this._weatherAdvice) return this._weatherAdvice
+    }
+    return getLine(key, role)
   },
 
   async loadHome() {
@@ -48,15 +88,23 @@ Page({
         fetchHomeStats(),
         fetchWeather()
       ])
+      const holiday = getHoliday(new Date())
+      this._holiday = holiday
+      this._weatherAdvice = (weather && weather.advice) || ''
       const weatherText = weather
         ? `${weather.city} · ${weather.text} ${weather.temp}°C`
         : ''
-      // 优先穿衣关心；没有天气时回退今日一句
-      const careLine = (weather && weather.advice) || dailyLine
+      const st = getState(this.data.expression)
       this.setData({
         dailyLine,
-        careLine,
         weatherText,
+        weatherAdvice: this._weatherAdvice,
+        weatherSource: (weather && weather.source) || 'demo',
+        weatherWarning: (weather && weather.warning) || '',
+        holidayName: holiday ? holiday.name : '',
+        holidayLine: holiday ? holiday.line : '',
+        careLine: this.buildCareLine(st.key),
+        moodLabel: st.label,
         voiceMonth: stats.voiceMonth || 0,
         transferMonth: stats.transferMonth || 0
       })
@@ -65,28 +113,64 @@ Page({
     }
   },
 
-  onExprChange(e) {
-    this.setData({ expression: e.detail.expression })
+  ensureAudio() {
+    if (this._greetAudio) return this._greetAudio
+    const audio = wx.createInnerAudioContext()
+    audio.obeyMuteSwitch = false
+    audio.onPlay(() => this.setData({ speaking: true }))
+    audio.onEnded(() => this.setData({ speaking: false }))
+    audio.onStop(() => this.setData({ speaking: false }))
+    audio.onError(() => {
+      // 爸爸版文件不存在时，回退妈妈版
+      if (this._triedDadFallback) {
+        this._triedDadFallback = false
+        this.setData({ speaking: false })
+        wx.showToast({ title: '录音播放失败，请检查音频文件', icon: 'none' })
+        return
+      }
+      const role = this.data.viewerRole || getRole()
+      if (role === 'dad') {
+        this._triedDadFallback = true
+        const st = getState(this.data.expression)
+        audio.src = st.audio
+        audio.play()
+        return
+      }
+      this.setData({ speaking: false })
+      wx.showToast({ title: '录音播放失败，请检查音频文件', icon: 'none' })
+    })
+    this._greetAudio = audio
+    return audio
   },
 
-  onLongGreet() {
+  onPlayGreet() {
     if (this.data.speaking) {
       this.stopGreet()
       return
     }
-    if (!this._greetAudio) {
-      this._greetAudio = wx.createInnerAudioContext()
-      this._greetAudio.src = '/assets/audio/demo-voice.wav'
-      this._greetAudio.onEnded(() => this.setData({ speaking: false, expression: 'happy' }))
-      this._greetAudio.onStop(() => this.setData({ speaking: false }))
-      this._greetAudio.onError(() => {
-        this.setData({ speaking: false })
-        wx.showToast({ title: '问候语音暂不可用', icon: 'none' })
+    const role = this.data.viewerRole || getRole()
+    const audio = this.ensureAudio()
+    this._triedDadFallback = false
+    audio.stop()
+    audio.src = getAudio(this.data.expression, role)
+    this.setData({ speaking: true })
+    audio.play()
+  },
+
+  onNextMood() {
+    this.stopGreet()
+    const expression = nextStateKey(this.data.expression)
+    const st = getState(expression)
+    this.setData({ textAnim: 'text-out' })
+    clearTimeout(this._textTimer)
+    this._textTimer = setTimeout(() => {
+      this.setData({
+        expression,
+        moodLabel: st.label,
+        careLine: this.buildCareLine(expression),
+        textAnim: 'text-in'
       })
-    }
-    this.setData({ speaking: true, expression: 'speak' })
-    this._greetAudio.stop()
-    this._greetAudio.play()
+    }, 200)
   },
 
   stopGreet() {

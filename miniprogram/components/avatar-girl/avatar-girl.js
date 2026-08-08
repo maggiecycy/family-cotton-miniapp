@@ -1,19 +1,10 @@
-const EXPRESSIONS = ['idle', 'happy', 'miss', 'serious', 'sleepy', 'speak']
-
-const SRC_MAP = {
-  idle: '/assets/avatar/idle.png',
-  happy: '/assets/avatar/happy.png',
-  miss: '/assets/avatar/miss.png',
-  serious: '/assets/avatar/serious.png',
-  sleepy: '/assets/avatar/sleepy.png',
-  speak: '/assets/avatar/speak.png'
-}
+const { getState, DEFAULT_KEY, allSrcs } = require('../../utils/homeState')
 
 Component({
   properties: {
     expression: {
       type: String,
-      value: 'idle'
+      value: DEFAULT_KEY
     },
     speaking: {
       type: Boolean,
@@ -26,54 +17,90 @@ Component({
   },
 
   data: {
-    currentSrc: SRC_MAP.idle,
-    fadeClass: 'fade-in',
-    innerExpr: 'idle'
+    srcA: getState(DEFAULT_KEY).src,
+    srcB: getState(DEFAULT_KEY).src,
+    opacityA: 1,
+    opacityB: 0,
+    activeLayer: 'a',
+    innerExpr: DEFAULT_KEY,
+    switching: false
   },
 
   observers: {
-    'expression, speaking'(expression, speaking) {
-      const next = speaking ? 'speak' : expression || 'idle'
-      this.switchTo(next)
+    expression(expression) {
+      const next = expression || DEFAULT_KEY
+      this.switchTo(next, { silent: true })
     }
   },
 
   lifetimes: {
     attached() {
-      const next = this.properties.speaking ? 'speak' : this.properties.expression || 'idle'
+      const key = this.properties.speaking ? 'speak' : this.properties.expression || DEFAULT_KEY
+      const st = getState(key)
       this.setData({
-        innerExpr: next,
-        currentSrc: SRC_MAP[next] || SRC_MAP.idle
+        innerExpr: key,
+        srcA: st.src,
+        srcB: st.src,
+        opacityA: 1,
+        opacityB: 0,
+        activeLayer: 'a'
       })
+      allSrcs().forEach((src) => wx.getImageInfo({ src, fail() {} }))
     }
   },
 
   methods: {
-    switchTo(name) {
-      const target = SRC_MAP[name] ? name : 'idle'
-      if (target === this.data.innerExpr) return
-      this.setData({ fadeClass: 'fade-out' })
-      clearTimeout(this._timer)
-      this._timer = setTimeout(() => {
+    switchTo(name, opts = {}) {
+      const target = getState(name).key
+      if (target === this.data.innerExpr || this.data.switching) return
+      const nextSrc = getState(target).src
+      const fromA = this.data.activeLayer === 'a'
+
+      if (fromA) {
         this.setData({
-          innerExpr: target,
-          currentSrc: SRC_MAP[target],
-          fadeClass: 'fade-in'
+          switching: true,
+          srcB: nextSrc,
+          opacityB: 0,
+          activeLayer: 'b'
         })
-      }, 160)
+      } else {
+        this.setData({
+          switching: true,
+          srcA: nextSrc,
+          opacityA: 0,
+          activeLayer: 'a'
+        })
+      }
+
+      clearTimeout(this._fadeTimer)
+      clearTimeout(this._doneTimer)
+      this._fadeTimer = setTimeout(() => {
+        if (fromA) this.setData({ opacityA: 0, opacityB: 1 })
+        else this.setData({ opacityA: 1, opacityB: 0 })
+      }, 40)
+
+      this._doneTimer = setTimeout(() => {
+        this.setData({ innerExpr: target, switching: false })
+        if (!opts.silent) {
+          this.triggerEvent('change', { expression: target, state: getState(target) })
+        }
+      }, 780)
     },
 
+    /** 点图片 = 播放当前状态真实问候 */
     onTap() {
-      if (this.properties.speaking) return
-      const cycle = EXPRESSIONS.filter((e) => e !== 'speak')
-      const idx = cycle.indexOf(this.data.innerExpr)
-      const next = cycle[(idx + 1) % cycle.length]
-      this.triggerEvent('change', { expression: next })
-      this.switchTo(next)
+      if (this.data.switching) return
+      this.triggerEvent('play', {
+        expression: this.data.innerExpr,
+        state: getState(this.properties.expression || this.data.innerExpr)
+      })
     },
 
     onLongPress() {
-      this.triggerEvent('longpress')
+      this.triggerEvent('play', {
+        expression: this.properties.expression || this.data.innerExpr,
+        state: getState(this.properties.expression || this.data.innerExpr)
+      })
     }
   }
 })

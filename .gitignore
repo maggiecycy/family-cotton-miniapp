@@ -5,3 +5,16 @@ miniprogram_npm/
 *.log
 .idea/
 .vscode/
+
+# —— 私密素材：本地保留，不推 GitHub ——
+# Personal media: keep locally, never push
+miniprogram/assets/avatar/*.jpg
+miniprogram/assets/avatar/*.jpeg
+miniprogram/assets/avatar/*.png
+miniprogram/assets/avatar/*.webp
+miniprogram/assets/audio/greet-*.wav
+miniprogram/assets/audio/greet-*.mp3
+
+# 允许说明文档进仓库
+!miniprogram/assets/avatar/README.md
+!miniprogram/assets/audio/README.md

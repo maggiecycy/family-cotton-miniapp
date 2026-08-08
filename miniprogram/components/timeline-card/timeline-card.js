@@ -1,13 +1,27 @@
 const { relativeDayLabel, formatDate } = require('../../utils/date')
 
-function transferLabel(direction) {
-  if (direction === 'daughter_to_mom') return '给妈妈的心意'
-  return '妈妈的心意'
+function transferLabel(direction, fromRole) {
+  if (direction === 'daughter_to_mom' || direction === 'daughter_to_parent') {
+    if (fromRole === 'dad') return '给爸爸的心意'
+    if (fromRole === 'mom') return '给妈妈的心意'
+    return '给家长的心意'
+  }
+  if (fromRole === 'dad') return '爸爸的心意'
+  if (fromRole === 'mom') return '妈妈的心意'
+  return '家长的心意'
 }
 
-function directionText(direction) {
-  if (direction === 'daughter_to_mom') return '女儿 → 妈妈'
-  if (direction === 'mom_to_daughter') return '妈妈 → 女儿'
+function directionText(direction, fromRole) {
+  if (direction === 'daughter_to_mom' || direction === 'daughter_to_parent') {
+    if (fromRole === 'dad') return '女儿 → 爸爸'
+    if (fromRole === 'mom') return '女儿 → 妈妈'
+    return '女儿 → 家长'
+  }
+  if (direction === 'mom_to_daughter' || direction === 'parent_to_daughter') {
+    if (fromRole === 'dad') return '爸爸 → 女儿'
+    if (fromRole === 'mom') return '妈妈 → 女儿'
+    return '家长 → 女儿'
+  }
   return ''
 }
 
@@ -36,9 +50,12 @@ Component({
       let directionClass = ''
       let dirText = ''
       if (val.type === 'transfer') {
-        typeLabel = transferLabel(val.direction)
-        dirText = directionText(val.direction)
-        directionClass = val.direction === 'daughter_to_mom' ? 'tag--out' : 'tag--in'
+        typeLabel = transferLabel(val.direction, val.fromRole)
+        dirText = directionText(val.direction, val.fromRole)
+        directionClass =
+          val.direction === 'daughter_to_mom' || val.direction === 'daughter_to_parent'
+            ? 'tag--out'
+            : 'tag--in'
       } else if (val.type === 'voice') {
         typeLabel = '语音留言'
       } else if (val.type === 'note') {
