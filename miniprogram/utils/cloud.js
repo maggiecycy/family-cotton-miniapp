@@ -55,13 +55,13 @@ async function login() {
   return res.result
 }
 
-async function bindFamily(inviteCode) {
+async function bindFamily(inviteCode, role = 'mom') {
   if (isDemo() || !isCloudReady()) {
-    return { ok: true, familyId: 'demo-family', inviteCode }
+    return { ok: true, familyId: 'demo-family', inviteCode, role }
   }
   const res = await wx.cloud.callFunction({
     name: 'bindFamily',
-    data: { inviteCode }
+    data: { inviteCode, role }
   })
   return res.result
 }

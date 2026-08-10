@@ -48,15 +48,38 @@ App({
       return
     }
     try {
-      // 必须写具体环境 ID。部分基础库/工具里 DYNAMIC_CURRENT_ENV 会报：
-      // env check invalid ... not in open list of env: [cloudbase-...]
       const env = 'cloudbase-d5gkkts0se795c6b3'
       wx.cloud.init({ env, traceUser: true })
       this.globalData.cloudReady = true
       this.globalData.cloudEnv = env
+      this.bootstrapCloud()
     } catch (e) {
       console.warn('cloud init skipped', e)
       this.globalData.cloudReady = false
+    }
+  },
+
+  async bootstrapCloud() {
+    if (!this.globalData.cloudReady || this.globalData.demoMode) return
+    try {
+      const { login } = require('./utils/cloud')
+      const session = await login()
+      if (session && session.openid) {
+        this.globalData.userInfo = {
+          ...(this.globalData.userInfo || {}),
+          openid: session.openid
+        }
+      }
+      if (session && session.familyId) {
+        this.globalData.familyId = session.familyId
+        wx.setStorageSync('familyId', session.familyId)
+      }
+      if (session && session.role && session.role !== 'guest') {
+        this.globalData.role = session.role
+        wx.setStorageSync('role', session.role)
+      }
+    } catch (e) {
+      console.warn('bootstrapCloud failed', e)
     }
   },
 

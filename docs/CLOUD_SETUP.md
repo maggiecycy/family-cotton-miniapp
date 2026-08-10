@@ -19,7 +19,19 @@
    - `voices/{familyId}/...`
    - `notes/{familyId}/...`
 6. 安全规则见 `docs/database-security.md`
-7. 小程序「我的」→ **关闭演示模式**
+7. 小程序「我的」→ **关闭演示模式**（将自动 `login` 拉取 openid / familyId）
+8. 爸妈端：**绑定家庭邀请码** → 选「我是妈妈/爸爸」
+9. 重新上传小程序版本，爸妈更新后即可多设备同步
+
+## 首次打开引导
+
+首页会在第一次打开时显示 3 步轻引导（本地 `onboardGuideDone_v1` 标记，跳过或看完即不再出现）。
+
+## 云存储路径
+
+- 语音：`voices/{familyId}/{timestamp}.mp3`
+- 纸条图片：`notes/{familyId}/{timestamp}_{i}.jpg`
+- 首页 idle 微动视频：`assets/avatar/idle-loop.mp4`（本地 <200KB，不进 Git）
 
 ## 天气 API（可选）
 

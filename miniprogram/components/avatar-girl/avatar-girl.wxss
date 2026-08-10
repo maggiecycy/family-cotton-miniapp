@@ -41,6 +41,10 @@
   animation: floatC 6.2s ease-in-out infinite;
 }
 
+.idle-video {
+  z-index: 2;
+}
+
 .photo.layer {
   position: absolute;
   inset: 0;

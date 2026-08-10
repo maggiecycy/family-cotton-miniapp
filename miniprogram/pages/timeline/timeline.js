@@ -1,6 +1,33 @@
-const { fetchTimeline, reactTimeline, fetchTransferStats } = require('../../utils/cloud')
+const { fetchTimeline, reactTimeline, fetchTransferStats, isDemo, isCloudReady } = require('../../utils/cloud')
 const { canPublish } = require('../../utils/auth')
-const { markTimelineRead, refreshTimelineBadge } = require('../../utils/unread')
+const { markTimelineReadFromList, refreshTimelineBadge } = require('../../utils/unread')
+const { resolveTimelineMedia } = require('../../utils/media')
+
+function buildMonthOptions(list) {
+  const keys = new Set()
+  ;(list || []).forEach((item) => {
+    const d = new Date(item.createdAt || 0)
+    if (!item.createdAt) return
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+    keys.add(key)
+  })
+  const sorted = Array.from(keys).sort().reverse()
+  const options = [{ key: 'all', label: '全部月份' }]
+  sorted.forEach((key) => {
+    const [, m] = key.split('-')
+    options.push({ key, label: `${parseInt(m, 10)}月` })
+  })
+  return options
+}
+
+function filterByMonth(list, monthKey) {
+  if (!monthKey || monthKey === 'all') return list || []
+  const [y, m] = monthKey.split('-').map((v) => parseInt(v, 10))
+  return (list || []).filter((item) => {
+    const d = new Date(item.createdAt || 0)
+    return d.getFullYear() === y && d.getMonth() + 1 === m
+  })
+}
 
 Page({
   data: {
@@ -8,6 +35,8 @@ Page({
     fontClass: 'font-larger',
     canPublish: false,
     filter: 'all',
+    monthFilter: 'all',
+    monthOptions: [{ key: 'all', label: '全部月份' }],
     transferRange: 'year',
     filters: [
       { key: 'all', label: '全部' },
@@ -43,7 +72,6 @@ Page({
       transferRange
     })
     this.loadList()
-    markTimelineRead()
   },
 
   onHide() {
@@ -53,12 +81,18 @@ Page({
   async loadList() {
     wx.showNavigationBarLoading()
     try {
-      const list = await fetchTimeline(this.data.filter)
-      const patch = { list }
+      const raw = await fetchTimeline(this.data.filter)
+      const monthOptions = buildMonthOptions(raw)
+      let list = filterByMonth(raw, this.data.monthFilter)
+      if (!isDemo() && isCloudReady()) {
+        list = await resolveTimelineMedia(list)
+      }
+      const patch = { list, monthOptions }
       if (this.data.filter === 'transfer') {
         patch.stats = await fetchTransferStats(this.data.transferRange)
       }
       this.setData(patch)
+      markTimelineReadFromList(raw)
     } catch (e) {
       wx.showToast({ title: '加载失败', icon: 'none' })
     } finally {
@@ -68,7 +102,12 @@ Page({
 
   onFilter(e) {
     const key = e.currentTarget.dataset.key
-    this.setData({ filter: key }, () => this.loadList())
+    this.setData({ filter: key, monthFilter: 'all' }, () => this.loadList())
+  },
+
+  onMonthFilter(e) {
+    const monthFilter = e.currentTarget.dataset.key
+    this.setData({ monthFilter }, () => this.loadList())
   },
 
   onRange(e) {

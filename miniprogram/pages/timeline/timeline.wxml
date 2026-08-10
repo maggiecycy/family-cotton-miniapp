@@ -9,6 +9,21 @@
     >{{item.label}}</view>
   </view>
 
+  <scroll-view
+    class="month-row"
+    wx:if="{{monthOptions.length > 1}}"
+    scroll-x
+    enable-flex
+  >
+    <view
+      wx:for="{{monthOptions}}"
+      wx:key="key"
+      class="month {{monthFilter === item.key ? 'on' : ''}}"
+      data-key="{{item.key}}"
+      bindtap="onMonthFilter"
+    >{{item.label}}</view>
+  </scroll-view>
+
   <view class="stats-panel" wx:if="{{filter === 'transfer'}}">
     <view class="range-row">
       <text class="range-label">时间范围</text>

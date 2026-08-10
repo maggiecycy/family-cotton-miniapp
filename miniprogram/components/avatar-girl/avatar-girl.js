@@ -1,4 +1,4 @@
-const { getState, DEFAULT_KEY, allSrcs } = require('../../utils/homeState')
+const { getState, DEFAULT_KEY, allSrcs, IDLE_VIDEO } = require('../../utils/homeState')
 
 Component({
   properties: {
@@ -13,6 +13,10 @@ Component({
     showHint: {
       type: Boolean,
       value: true
+    },
+    useIdleVideo: {
+      type: Boolean,
+      value: true
     }
   },
 
@@ -23,13 +27,19 @@ Component({
     opacityB: 0,
     activeLayer: 'a',
     innerExpr: DEFAULT_KEY,
-    switching: false
+    switching: false,
+    showIdleVideo: false,
+    idleVideoSrc: IDLE_VIDEO
   },
 
   observers: {
-    expression(expression) {
-      const next = expression || DEFAULT_KEY
-      this.switchTo(next, { silent: true })
+    'expression, speaking, useIdleVideo'(expression, speaking, useIdleVideo) {
+      const key = speaking ? 'speak' : expression || DEFAULT_KEY
+      const showIdleVideo = !!useIdleVideo && key === 'idle' && !speaking
+      if (showIdleVideo !== this.data.showIdleVideo) {
+        this.setData({ showIdleVideo })
+      }
+      this.switchTo(key, { silent: true })
     }
   },
 
@@ -37,13 +47,17 @@ Component({
     attached() {
       const key = this.properties.speaking ? 'speak' : this.properties.expression || DEFAULT_KEY
       const st = getState(key)
+      const showIdleVideo =
+        this.properties.useIdleVideo && key === 'idle' && !this.properties.speaking
       this.setData({
         innerExpr: key,
         srcA: st.src,
         srcB: st.src,
         opacityA: 1,
         opacityB: 0,
-        activeLayer: 'a'
+        activeLayer: 'a',
+        showIdleVideo,
+        idleVideoSrc: IDLE_VIDEO
       })
       allSrcs().forEach((src) => wx.getImageInfo({ src, fail() {} }))
     }
@@ -87,7 +101,6 @@ Component({
       }, 780)
     },
 
-    /** 点图片 = 播放当前状态真实问候 */
     onTap() {
       if (this.data.switching) return
       this.triggerEvent('play', {

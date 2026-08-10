@@ -16,6 +16,7 @@ exports.main = async (event) => {
   const wxContext = cloud.getWXContext()
   const openid = wxContext.OPENID
   const inviteCode = (event.inviteCode || '').trim().toUpperCase()
+  const joinRole = event.role === 'dad' ? 'dad' : 'mom'
   const action = event.action || (inviteCode ? 'join' : 'create')
 
   const users = db.collection('users')
@@ -63,10 +64,10 @@ exports.main = async (event) => {
 
   await users.doc(user._id).update({
     data: {
-      role: 'mom',
+      role: joinRole,
       familyId: family._id
     }
   })
 
-  return { ok: true, familyId: family._id, inviteCode, role: 'mom' }
+  return { ok: true, familyId: family._id, inviteCode, role: joinRole }
 }

@@ -38,9 +38,10 @@ Page({
     const on = e.detail.value
     getApp().setDemoMode(on)
     if (on) {
-      // 打开演示时把已读时间拨回 3 天前，方便再看到未读角标
       setLastReadAt(Date.now() - 3 * 24 * 60 * 60 * 1000)
       refreshTimelineBadge()
+    } else {
+      getApp().bootstrapCloud()
     }
     this.refresh()
     wx.showToast({
@@ -112,7 +113,7 @@ Page({
           success: async (pick) => {
             const role = pick.tapIndex === 1 ? 'dad' : 'mom'
             try {
-              const result = await bindFamily(code)
+              const result = await bindFamily(code, role)
               if (result && result.ok) {
                 getApp().globalData.familyId = result.familyId
                 wx.setStorageSync('familyId', result.familyId)

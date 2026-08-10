@@ -102,6 +102,30 @@
   font-weight: 650;
 }
 
+.month-row {
+  display: flex;
+  gap: 10rpx;
+  padding: 0 28rpx 16rpx;
+  white-space: nowrap;
+}
+
+.month {
+  flex-shrink: 0;
+  padding: 10rpx 22rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.65);
+  color: #8a6b5e;
+  font-size: 24rpx;
+  border: 2rpx solid rgba(90, 55, 40, 0.05);
+}
+
+.month.on {
+  color: #c25540;
+  background: rgba(217, 107, 84, 0.1);
+  border-color: rgba(217, 107, 84, 0.22);
+  font-weight: 650;
+}
+
 .empty-title {
   font-size: 40rpx;
   font-weight: 700;
