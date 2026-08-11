@@ -1,5 +1,5 @@
 /**
- * 家长照片墙（本地持久化；云模式同步 timeline type=photo）
+ * 家庭照片墙（本地持久化；云模式同步 timeline type=photo）
  */
 
 const STORAGE_KEY = 'photoWallItems'
@@ -20,7 +20,7 @@ function writePhotos(list) {
 function addPhoto(payload) {
   const role = payload.fromRole || 'mom'
   const row = {
-    _id: payload._id || `photo-${Date.now()}`,
+    _id: payload._id || `photo-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
     type: 'photo',
     image: payload.image,
     text: payload.text || '',
@@ -34,8 +34,16 @@ function addPhoto(payload) {
   return row
 }
 
+function removePhoto(id) {
+  if (!id) return false
+  const list = getPhotos().filter((p) => p._id !== id)
+  writePhotos(list)
+  return true
+}
+
 module.exports = {
   STORAGE_KEY,
   getPhotos,
-  addPhoto
+  addPhoto,
+  removePhoto
 }

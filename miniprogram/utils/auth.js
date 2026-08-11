@@ -25,8 +25,9 @@ function isMom() {
   return getRole() === 'mom'
 }
 
+/** 女儿与家长都可上传家庭照片墙 */
 function canPublishPhoto() {
-  return isParent()
+  return isPublisher() || isParent()
 }
 
 function canPublish() {

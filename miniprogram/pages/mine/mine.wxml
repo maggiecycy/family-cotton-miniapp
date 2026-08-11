@@ -78,10 +78,10 @@
     </view>
   </view>
 
-  <view class="group" wx:if="{{isParent}}">
+  <view class="group" wx:if="{{isParent || isPublisher}}">
     <view class="row" bindtap="go" data-url="/pages/publish-photo/publish-photo">
       <text>上传照片到照片墙</text>
-      <text class="value">›</text>
+      <text class="value">最多 9 张 ›</text>
     </view>
   </view>
 

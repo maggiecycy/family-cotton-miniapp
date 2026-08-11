@@ -66,12 +66,20 @@
           <text class="photo-day">{{item.dayLabel}}</text>
         </view>
         <view class="photo-caption" wx:if="{{item.text}}">{{item.text}}</view>
-        <view class="photo-save" data-src="{{item.image}}" bindtap="onSavePhoto">保存到相册</view>
+        <view class="photo-actions">
+          <view class="photo-save" data-src="{{item.image}}" bindtap="onSavePhoto">保存到相册</view>
+          <view
+            wx:if="{{canPublishPhoto}}"
+            class="photo-del"
+            data-id="{{item._id}}"
+            bindtap="onDeletePhoto"
+          >删除</view>
+        </view>
       </view>
     </view>
     <view wx:else class="empty">
       <view class="empty-title">照片墙还是空的</view>
-      <view class="empty-desc">妈妈或爸爸可以点右下角 + 上传照片。</view>
+      <view class="empty-desc">女儿或家长可点右下角 + 上传照片（一次最多 9 张）。</view>
     </view>
   </block>
 

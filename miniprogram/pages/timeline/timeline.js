@@ -1,4 +1,4 @@
-const { fetchTimeline, reactTimeline, fetchTransferStats } = require('../../utils/cloud')
+const { fetchTimeline, reactTimeline, fetchTransferStats, deleteTimelineItem } = require('../../utils/cloud')
 const { canPublish, canPublishPhoto } = require('../../utils/auth')
 const { markTimelineRead, refreshTimelineBadge } = require('../../utils/unread')
 const { relativeDayLabel } = require('../../utils/date')
@@ -8,6 +8,7 @@ function roleShort(role) {
   if (role === 'dad') return '爸爸'
   if (role === 'grandma') return '外婆'
   if (role === 'mom') return '妈妈'
+  if (role === 'daughter') return '女儿'
   return '家长'
 }
 
@@ -141,5 +142,26 @@ Page({
   async onSavePhoto(e) {
     const src = e.currentTarget.dataset.src
     await saveImageToAlbum(src)
+  },
+
+  onDeletePhoto(e) {
+    const id = e.currentTarget.dataset.id
+    if (!id) return
+    wx.showModal({
+      title: '删除这张照片？',
+      content: '删除后照片墙将不再显示。',
+      confirmText: '删除',
+      confirmColor: '#D96B54',
+      success: async (res) => {
+        if (!res.confirm) return
+        const result = await deleteTimelineItem(id)
+        if (!result || result.ok === false) {
+          wx.showToast({ title: '删除失败', icon: 'none' })
+          return
+        }
+        wx.showToast({ title: '已删除', icon: 'success' })
+        this.loadList()
+      }
+    })
   }
 })

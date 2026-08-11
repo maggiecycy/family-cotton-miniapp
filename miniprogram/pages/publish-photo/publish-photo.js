@@ -2,28 +2,38 @@ const { createTimelineItem, isDemo } = require('../../utils/cloud')
 const { canPublishPhoto, getRole } = require('../../utils/auth')
 const { requestSubscribe, notifyFamily } = require('../../utils/subscribe')
 
+const MAX_COUNT = 9
+
 Page({
   data: {
-    image: '',
+    images: [],
     caption: '',
-    submitting: false
+    submitting: false,
+    maxCount: MAX_COUNT
   },
 
   onShow() {
     if (!canPublishPhoto()) {
-      wx.showToast({ title: '仅家长可上传照片', icon: 'none' })
+      wx.showToast({ title: '绑定后才可上传照片', icon: 'none' })
       setTimeout(() => wx.navigateBack({ fail: () => wx.switchTab({ url: '/pages/mine/mine' }) }), 500)
     }
   },
 
   onChoose() {
+    const remain = MAX_COUNT - this.data.images.length
+    if (remain <= 0) {
+      wx.showToast({ title: `一次最多 ${MAX_COUNT} 张`, icon: 'none' })
+      return
+    }
     wx.chooseMedia({
-      count: 1,
+      count: remain,
       mediaType: ['image'],
       sourceType: ['album', 'camera'],
       success: (res) => {
-        const file = (res.tempFiles && res.tempFiles[0]) || null
-        if (file) this.setData({ image: file.tempFilePath })
+        const files = (res.tempFiles || []).map((f) => f.tempFilePath).filter(Boolean)
+        if (!files.length) return
+        const images = this.data.images.concat(files).slice(0, MAX_COUNT)
+        this.setData({ images })
       },
       fail: (err) => {
         console.warn(err)
@@ -43,42 +53,57 @@ Page({
     this.setData({ caption: e.detail.value })
   },
 
-  onPreview() {
-    if (!this.data.image) return
-    wx.previewImage({ urls: [this.data.image], current: this.data.image })
+  onPreview(e) {
+    const src = e.currentTarget.dataset.src
+    wx.previewImage({ urls: this.data.images, current: src })
   },
 
-  async uploadImage(localPath) {
+  onRemove(e) {
+    const index = Number(e.currentTarget.dataset.index)
+    if (Number.isNaN(index)) return
+    const images = this.data.images.slice()
+    images.splice(index, 1)
+    this.setData({ images })
+  },
+
+  async uploadImage(localPath, index) {
     if (isDemo()) return localPath
     const familyId = getApp().globalData.familyId || 'unknown'
     const up = await wx.cloud.uploadFile({
-      cloudPath: `photos/${familyId}/${Date.now()}.jpg`,
+      cloudPath: `photos/${familyId}/${Date.now()}-${index}.jpg`,
       filePath: localPath
     })
     return up.fileID
   },
 
   async onSubmit() {
-    if (!this.data.image) {
-      wx.showToast({ title: '请先选一张照片', icon: 'none' })
+    if (!this.data.images.length) {
+      wx.showToast({ title: '请先选照片', icon: 'none' })
       return
     }
     this.setData({ submitting: true })
     try {
-      const image = await this.uploadImage(this.data.image)
-      await createTimelineItem({
-        type: 'photo',
-        image,
-        text: (this.data.caption || '').trim(),
-        fromRole: getRole()
-      })
+      const caption = (this.data.caption || '').trim()
+      const role = getRole()
+      const fileIDs = []
+      for (let i = 0; i < this.data.images.length; i += 1) {
+        fileIDs.push(await this.uploadImage(this.data.images[i], i))
+      }
+      for (let i = 0; i < fileIDs.length; i += 1) {
+        await createTimelineItem({
+          type: 'photo',
+          image: fileIDs[i],
+          text: i === 0 ? caption : '',
+          fromRole: role
+        })
+      }
       await requestSubscribe(['photo', 'festival'])
       await notifyFamily('photo', {
         title: '家庭相册有新照片',
-        hint: '打开时光轴照片墙',
+        hint: fileIDs.length > 1 ? `新上传了 ${fileIDs.length} 张` : '打开时光轴照片墙',
         page: 'pages/timeline/timeline'
       })
-      wx.showToast({ title: '已放进照片墙', icon: 'success' })
+      wx.showToast({ title: `已上传 ${fileIDs.length} 张`, icon: 'success' })
       setTimeout(() => wx.navigateBack(), 500)
     } catch (e) {
       console.warn(e)

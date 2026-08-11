@@ -25,6 +25,6 @@
 
   <view wx:else class="empty">
     <view class="empty-title">相册还是空的</view>
-    <view class="empty-desc">家长可上传照片；女儿写真也可在首页长按保存。</view>
+      <view class="empty-desc">女儿或家长可上传照片（一次最多 9 张）；写真也可在首页长按保存。</view>
   </view>
 </view>

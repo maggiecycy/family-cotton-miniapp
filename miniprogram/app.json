@@ -50,7 +50,7 @@
       "desc": "用于女儿录制语音问候与留言，陪伴家长收听"
     },
     "scope.writePhotosAlbum": {
-      "desc": "用于家长将女儿写真或家庭照片保存到手机相册"
+      "desc": "用于将女儿写真或家庭照片保存到手机相册"
     }
   },
   "requiredPrivateInfos": [],

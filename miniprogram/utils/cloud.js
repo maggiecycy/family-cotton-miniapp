@@ -7,7 +7,7 @@
 const { getMockTimeline, getMockStats, getMockDailyLine } = require('../mock/data')
 const { todayKey } = require('./date')
 const { addTransfer, getTransferTimeline, getTransferStats } = require('./transferLedger')
-const { getPhotos, addPhoto } = require('./photoWall')
+const { getPhotos, addPhoto, removePhoto } = require('./photoWall')
 const { getRole } = require('./auth')
 
 function isDemo() {
@@ -39,7 +39,9 @@ function getTransferRange() {
 function localTimeline(filter = 'all') {
   const range = getTransferRange()
   let list = getMockTimeline(range)
-  if (filter && filter !== 'all') {
+  if (filter === 'all') {
+    list = list.filter((item) => item.type !== 'photo')
+  } else if (filter) {
     list = list.filter((item) => item.type === filter)
   }
   return list
@@ -102,13 +104,7 @@ async function fetchTimeline(filter = 'all') {
   }
 
   if (isDemo() || !isCloudReady()) {
-    let list = localTimeline(filter)
-    if (filter === 'all') {
-      const photos = getPhotos()
-      list = photos.concat(list.filter((i) => i.type !== 'photo'))
-      list.sort((a, b) => b.createdAt - a.createdAt)
-    }
-    return list
+    return localTimeline(filter)
   }
 
   try {
@@ -122,8 +118,11 @@ async function fetchTimeline(filter = 'all') {
     const res = await db.collection('timeline').where(where).orderBy('createdAt', 'desc').get()
     let list = res.data || []
     if (filter === 'all') {
+      // 照片只在「照片墙」展示，全部里不出现空卡片
       const transfers = getTransferTimeline(range).filter((t) => t.status !== 'refunded')
-      list = list.filter((i) => i.type !== 'transfer').concat(transfers)
+      list = list
+        .filter((i) => i.type !== 'transfer' && i.type !== 'photo')
+        .concat(transfers)
       list.sort((a, b) => b.createdAt - a.createdAt)
     }
     // 云库空且本地有数据时，回退本地，避免空白
@@ -179,24 +178,34 @@ async function fetchDailyLine() {
 }
 
 async function fetchPhotos() {
+  const local = getPhotos()
   if (isDemo() || !isCloudReady()) {
-    return getPhotos()
+    return local
   }
   try {
     const db = wx.cloud.database()
     const familyId = getApp().globalData.familyId
-    if (!familyId) return getPhotos()
+    if (!familyId) return local
     const res = await db
       .collection('timeline')
       .where({ familyId, type: 'photo' })
       .orderBy('createdAt', 'desc')
       .get()
     const cloud = res.data || []
-    if (!cloud.length) return getPhotos()
-    return cloud
+    // 合并：云端为主，本地补漏（同机切身份时也能看到刚传的）
+    const map = {}
+    cloud.forEach((p) => {
+      if (p && p._id) map[p._id] = p
+    })
+    local.forEach((p) => {
+      if (p && p._id && !map[p._id]) map[p._id] = p
+    })
+    return Object.keys(map)
+      .map((k) => map[k])
+      .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
   } catch (e) {
     console.warn('fetchPhotos failed', e)
-    return getPhotos()
+    return local
   }
 }
 
@@ -215,10 +224,16 @@ async function createTimelineItem(payload) {
       wx.showToast({ title: '已上传照片', icon: 'success' })
       return { ok: true, ...row }
     }
+    const familyId = getApp().globalData.familyId
+    if (!familyId) {
+      addPhoto(row)
+      wx.showToast({ title: '未绑定家庭，仅本机可见', icon: 'none' })
+      return { ok: true, localOnly: true, ...row }
+    }
     const db = wx.cloud.database()
     const data = {
       ...row,
-      familyId: getApp().globalData.familyId,
+      familyId,
       createdBy: getApp().globalData.userInfo && getApp().globalData.userInfo.openid
     }
     const res = await db.collection('timeline').add({ data })
@@ -283,6 +298,23 @@ async function reactTimeline(id, key) {
   return { ok: true }
 }
 
+/** 删除照片墙条目（本地 + 云 timeline） */
+async function deleteTimelineItem(id) {
+  if (!id) return { ok: false, error: 'missing-id' }
+  removePhoto(id)
+  if (isDemo() || !isCloudReady()) {
+    return { ok: true, demo: true }
+  }
+  try {
+    const db = wx.cloud.database()
+    await db.collection('timeline').doc(id).remove()
+    return { ok: true }
+  } catch (e) {
+    console.warn('deleteTimelineItem failed', e)
+    return { ok: false, error: (e && (e.errMsg || e.message)) || String(e) }
+  }
+}
+
 module.exports = {
   isDemo,
   isCloudReady,
@@ -295,6 +327,7 @@ module.exports = {
   fetchHomeStats,
   fetchDailyLine,
   createTimelineItem,
+  deleteTimelineItem,
   reactTimeline,
   getTransferRange
 }

@@ -31,11 +31,22 @@
   border: none;
 }
 
-.photo-save {
+.photo-actions {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
   padding: 8rpx 16rpx 14rpx;
+}
+
+.photo-save,
+.photo-del {
   color: #d96b54;
   font-size: 22rpx;
   font-weight: 600;
+}
+
+.photo-del {
+  color: #a88878;
 }
 
 .stats-panel {

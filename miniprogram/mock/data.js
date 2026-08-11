@@ -1,5 +1,4 @@
 const { getTransferTimeline, monthTransferCount } = require('../utils/transferLedger')
-const { getPhotos } = require('../utils/photoWall')
 
 const DEFAULT_LINES = [
   '妈，我在呢。今天也要开心一点。',
@@ -13,9 +12,9 @@ const DEFAULT_LINES = [
 ]
 
 function getMockTimeline(transferRange = 'year') {
+  // 照片只出现在「照片墙」Tab，不混进全部/语音/纸条
   const transfers = getTransferTimeline(transferRange).filter((t) => t.status !== 'refunded')
-  const photos = getPhotos()
-  return photos.concat(transfers).sort((a, b) => b.createdAt - a.createdAt)
+  return transfers.sort((a, b) => b.createdAt - a.createdAt)
 }
 
 function getMockStats() {
