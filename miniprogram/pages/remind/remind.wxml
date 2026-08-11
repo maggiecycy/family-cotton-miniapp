@@ -1,0 +1,12 @@
+<view class="page remind">
+  <view class="intro">本地提醒开关。开启后先记在本机；以后接订阅消息即可按时提醒家长。</view>
+  <view class="list">
+    <view class="row" wx:for="{{list}}" wx:key="id">
+      <view class="meta">
+        <view class="title">{{item.title}}</view>
+        <view class="desc">{{item.desc}} · 建议 {{item.time}}</view>
+      </view>
+      <switch checked="{{item.enabled}}" color="#D96B54" data-id="{{item.id}}" bindchange="onToggle" />
+    </view>
+  </view>
+</view>

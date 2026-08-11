@@ -1,11 +1,12 @@
 const { createTimelineItem, isDemo } = require('../../utils/cloud')
 const { canPublish } = require('../../utils/auth')
+const { requestSubscribe, notifyFamily } = require('../../utils/subscribe')
+const { ensureRecord } = require('../../utils/permission')
 
 const MAX_MS = 60 * 1000
 
 Page({
   data: {
-    fontClass: 'font-larger',
     recording: false,
     statusText: '准备好了就按住说话',
     durationText: '0″',
@@ -39,8 +40,18 @@ Page({
     this._recorder.onError((err) => {
       clearInterval(this._tick)
       console.warn(err)
-      this.setData({ recording: false, statusText: '录音失败，请重试' })
-      wx.showToast({ title: '录音失败', icon: 'none' })
+      const msg = (err && err.errMsg) || ''
+      const privacy = /privacy agreement|errno:\s*112/i.test(msg) || (err && err.errno === 112)
+      this.setData({
+        recording: false,
+        statusText: privacy
+          ? '请先在公众平台配置隐私指引中的麦克风'
+          : '录音失败，请检查麦克风权限'
+      })
+      wx.showToast({
+        title: privacy ? '隐私指引未声明麦克风' : '录音失败',
+        icon: 'none'
+      })
     })
   },
 
@@ -48,12 +59,7 @@ Page({
     if (!canPublish()) {
       wx.showToast({ title: '仅女儿可发语音', icon: 'none' })
       setTimeout(() => wx.navigateBack({ fail: () => wx.switchTab({ url: '/pages/mine/mine' }) }), 500)
-      return
     }
-    const app = getApp()
-    this.setData({
-      fontClass: app.globalData.fontScale === 'larger' ? 'font-larger' : ''
-    })
   },
 
   onUnload() {
@@ -64,7 +70,12 @@ Page({
     }
   },
 
-  onStart() {
+  async onStart() {
+    const ok = await ensureRecord()
+    if (!ok) {
+      this.setData({ statusText: '请开启麦克风权限后再试' })
+      return
+    }
     this._recorder.start({
       duration: MAX_MS,
       sampleRate: 16000,
@@ -107,6 +118,12 @@ Page({
         localSrc: isDemo() ? fileID : '',
         durationMs: this.data.durationMs,
         message: '一条新的语音留言'
+      })
+      await requestSubscribe(['voice', 'festival'])
+      await notifyFamily('voice', {
+        title: '女儿发来新语音',
+        hint: '打开时光轴收听',
+        page: 'pages/timeline/timeline'
       })
       wx.showToast({ title: isDemo() ? '演示模式已记录' : '上传成功', icon: 'success' })
       setTimeout(() => wx.navigateBack(), 500)

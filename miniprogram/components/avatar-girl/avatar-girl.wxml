@@ -3,20 +3,6 @@
   <view class="orb orb-b"></view>
   <view class="orb orb-c"></view>
 
-  <!-- idle 微动 loop 视频（<200KB），说话或非 idle 时切回静态图 -->
-  <video
-    wx:if="{{showIdleVideo}}"
-    class="photo layer idle-video on-top"
-    src="{{idleVideoSrc}}"
-    autoplay
-    loop
-    muted
-    show-center-play-btn="{{false}}"
-    controls="{{false}}"
-    object-fit="cover"
-    enable-progress-gesture="{{false}}"
-  />
-
   <!-- 双层叠化：始终两张图在，靠 opacity 交叉淡入 -->
   <image
     class="photo layer {{activeLayer === 'a' ? 'on-top' : ''}}"

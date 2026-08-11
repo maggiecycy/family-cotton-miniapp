@@ -29,18 +29,6 @@
 
   <block wx:else>
     <view class="note-text" wx:if="{{item.text}}">{{item.text}}</view>
-    <view class="note-images" wx:if="{{item.images && item.images.length}}">
-      <image
-        wx:for="{{item.images}}"
-        wx:for-item="img"
-        wx:key="*this"
-        class="note-img"
-        src="{{img}}"
-        mode="aspectFill"
-        data-src="{{img}}"
-        bindtap="onPreviewImage"
-      />
-    </view>
   </block>
 
   <view class="reactions">

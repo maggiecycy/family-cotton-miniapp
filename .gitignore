@@ -12,7 +12,6 @@ miniprogram/assets/avatar/*.jpg
 miniprogram/assets/avatar/*.jpeg
 miniprogram/assets/avatar/*.png
 miniprogram/assets/avatar/*.webp
-miniprogram/assets/avatar/*.mp4
 miniprogram/assets/audio/greet-*.wav
 miniprogram/assets/audio/greet-*.mp3
 miniprogram/assets/audio/greet-*.m4a

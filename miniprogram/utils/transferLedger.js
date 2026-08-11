@@ -10,9 +10,29 @@ const { SEED_TRANSFERS } = require('../mock/transfers')
 const APPEND_KEY = 'transferLedgerAppend'
 const YEAR_MS = 365 * 24 * 60 * 60 * 1000
 
+const INCOME_DIRECTIONS = ['mom_to_daughter', 'dad_to_daughter', 'parent_to_daughter']
+
+function inferFromRole(direction, fromRole) {
+  if (fromRole) return fromRole
+  if (direction === 'dad_to_daughter') return 'dad'
+  if (direction === 'mom_to_daughter') return 'mom'
+  if (direction === 'daughter_to_mom') return 'mom'
+  if (direction === 'parent_to_daughter') return 'parent'
+  return ''
+}
+
+function roleWord(role) {
+  if (role === 'dad') return '爸爸'
+  if (role === 'mom') return '妈妈'
+  if (role === 'grandma') return '外婆'
+  return '家长'
+}
+
 function toTimelineItem(raw) {
   const direction = raw.direction || 'mom_to_daughter'
-  const isIn = direction === 'mom_to_daughter'
+  const isIn = INCOME_DIRECTIONS.includes(direction)
+  const fromRole = inferFromRole(direction, raw.fromRole)
+  const who = roleWord(fromRole)
   return {
     _id: raw._id || `transfer-${raw.tradeNo || raw.createdAt}`,
     type: 'transfer',
@@ -20,8 +40,8 @@ function toTimelineItem(raw) {
     amount: Number(raw.amount),
     currency: 'CNY',
     category: raw.category || (isIn ? '生活费' : '小小心意'),
-    fromRole: raw.fromRole || '',
-    remark: raw.remark || (isIn ? '家长的心意' : '给家长的心意'),
+    fromRole,
+    remark: raw.remark || (isIn ? `${who}的转账` : `给${who}的心意`),
     message:
       raw.message ||
       (isIn ? '我收到了，谢谢你。' : '一点心意，谢谢你一直照顾我。'),
@@ -72,7 +92,7 @@ function activeOnly(list) {
 
 function computeStats(list) {
   const active = activeOnly(list)
-  const income = active.filter((i) => i.direction === 'mom_to_daughter')
+  const income = active.filter((i) => INCOME_DIRECTIONS.includes(i.direction))
   const expense = active.filter((i) => i.direction === 'daughter_to_mom')
   const incomeAmounts = income.map((i) => i.amount)
   const expenseAmounts = expense.map((i) => i.amount)

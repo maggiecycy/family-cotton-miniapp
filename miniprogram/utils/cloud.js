@@ -7,6 +7,8 @@
 const { getMockTimeline, getMockStats, getMockDailyLine } = require('../mock/data')
 const { todayKey } = require('./date')
 const { addTransfer, getTransferTimeline, getTransferStats } = require('./transferLedger')
+const { getPhotos, addPhoto } = require('./photoWall')
+const { getRole } = require('./auth')
 
 function isDemo() {
   try {
@@ -55,13 +57,35 @@ async function login() {
   return res.result
 }
 
-async function bindFamily(inviteCode, role = 'mom') {
+async function bindFamily(inviteCode, extra = {}) {
   if (isDemo() || !isCloudReady()) {
-    return { ok: true, familyId: 'demo-family', inviteCode, role }
+    // 演示模式：本地直接成功，不访问云
+    return {
+      ok: true,
+      familyId: 'demo-family',
+      inviteCode: (inviteCode || 'COTTON888').toUpperCase(),
+      role: extra.role || 'mom',
+      demo: true
+    }
   }
   const res = await wx.cloud.callFunction({
     name: 'bindFamily',
-    data: { inviteCode, role }
+    data: {
+      inviteCode,
+      action: extra.action || (inviteCode ? 'join' : 'create'),
+      role: extra.role || 'mom'
+    }
+  })
+  return res.result
+}
+
+async function createFamilyInvite() {
+  if (isDemo() || !isCloudReady()) {
+    return { ok: true, inviteCode: 'COTTON888', familyId: 'demo-family', demo: true }
+  }
+  const res = await wx.cloud.callFunction({
+    name: 'bindFamily',
+    data: { action: 'create' }
   })
   return res.result
 }
@@ -69,14 +93,22 @@ async function bindFamily(inviteCode, role = 'mom') {
 async function fetchTimeline(filter = 'all') {
   const range = getTransferRange()
 
-  // 心意：永远走本地账本（凭证 + 续记）
   if (filter === 'transfer') {
     return getTransferTimeline(range).filter((t) => t.status !== 'refunded')
   }
 
-  // 演示模式，或云未开通：完整本地时光轴（含真实心意）
+  if (filter === 'photo') {
+    return fetchPhotos()
+  }
+
   if (isDemo() || !isCloudReady()) {
-    return localTimeline(filter)
+    let list = localTimeline(filter)
+    if (filter === 'all') {
+      const photos = getPhotos()
+      list = photos.concat(list.filter((i) => i.type !== 'photo'))
+      list.sort((a, b) => b.createdAt - a.createdAt)
+    }
+    return list
   }
 
   try {
@@ -146,7 +178,54 @@ async function fetchDailyLine() {
   return getMockDailyLine(date)
 }
 
+async function fetchPhotos() {
+  if (isDemo() || !isCloudReady()) {
+    return getPhotos()
+  }
+  try {
+    const db = wx.cloud.database()
+    const familyId = getApp().globalData.familyId
+    if (!familyId) return getPhotos()
+    const res = await db
+      .collection('timeline')
+      .where({ familyId, type: 'photo' })
+      .orderBy('createdAt', 'desc')
+      .get()
+    const cloud = res.data || []
+    if (!cloud.length) return getPhotos()
+    return cloud
+  } catch (e) {
+    console.warn('fetchPhotos failed', e)
+    return getPhotos()
+  }
+}
+
 async function createTimelineItem(payload) {
+  if (payload.type === 'photo') {
+    const fromRole = payload.fromRole || getRole()
+    const row = {
+      ...payload,
+      type: 'photo',
+      fromRole,
+      createdAt: payload.createdAt || Date.now(),
+      reactions: { received: 0, like: 0, miss: 0 }
+    }
+    if (isDemo() || !isCloudReady()) {
+      addPhoto(row)
+      wx.showToast({ title: '已上传照片', icon: 'success' })
+      return { ok: true, ...row }
+    }
+    const db = wx.cloud.database()
+    const data = {
+      ...row,
+      familyId: getApp().globalData.familyId,
+      createdBy: getApp().globalData.userInfo && getApp().globalData.userInfo.openid
+    }
+    const res = await db.collection('timeline').add({ data })
+    addPhoto({ ...row, _id: res._id })
+    return { ok: true, _id: res._id }
+  }
+
   if (payload.type === 'transfer') {
     const row = addTransfer(payload)
     wx.showToast({ title: '已记入心意账本', icon: 'success' })
@@ -209,7 +288,9 @@ module.exports = {
   isCloudReady,
   login,
   bindFamily,
+  createFamilyInvite,
   fetchTimeline,
+  fetchPhotos,
   fetchTransferStats,
   fetchHomeStats,
   fetchDailyLine,

@@ -25,6 +25,10 @@ function isMom() {
   return getRole() === 'mom'
 }
 
+function canPublishPhoto() {
+  return isParent()
+}
+
 function canPublish() {
   return isPublisher()
 }
@@ -49,6 +53,7 @@ module.exports = {
   isPublisher,
   isParent,
   isMom,
+  canPublishPhoto,
   canPublish,
   canReact,
   roleLabel

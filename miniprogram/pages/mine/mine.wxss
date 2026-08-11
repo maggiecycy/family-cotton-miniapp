@@ -127,6 +127,33 @@
   min-height: 88rpx;
 }
 
+.invite-btn.ghost {
+  background: rgba(255, 255, 255, 0.92);
+  color: #c25540;
+  border: 2rpx solid rgba(217, 107, 84, 0.28);
+  box-sizing: border-box;
+}
+
+.invite-card.soft {
+  background: rgba(255, 248, 242, 0.96);
+}
+
+.invite-tip {
+  margin-top: 14rpx;
+  font-size: 22rpx;
+  color: #9a7b6e;
+  line-height: 1.45;
+}
+
+.share-btn {
+  border: none;
+  line-height: 88rpx;
+}
+
+.share-btn::after {
+  border: none;
+}
+
 .bind-steps .step {
   font-size: 28rpx;
   color: #5d4a42;

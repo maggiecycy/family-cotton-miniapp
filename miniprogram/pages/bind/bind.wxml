@@ -1,0 +1,23 @@
+<view class="page bind">
+  <view class="card">
+    <view class="title">加入家庭</view>
+    <view class="desc">{{tip}}</view>
+
+    <view class="label">邀请码</view>
+    <input
+      class="input"
+      maxlength="16"
+      placeholder="例如 COTTON888"
+      value="{{inviteCode}}"
+      bindinput="onInput"
+    />
+
+    <view class="label">我是</view>
+    <view class="roles">
+      <button class="role-btn" loading="{{binding}}" data-role="mom" bindtap="onPickRole">妈妈</button>
+      <button class="role-btn" loading="{{binding}}" data-role="dad" bindtap="onPickRole">爸爸</button>
+    </view>
+
+    <view class="link" bindtap="goHome">先看看首页</view>
+  </view>
+</view>

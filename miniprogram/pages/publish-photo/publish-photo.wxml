@@ -1,0 +1,19 @@
+<view class="page publish">
+  <view class="form">
+    <view class="label">上传一张照片</view>
+    <view class="photo-box" bindtap="{{image ? 'onPreview' : 'onChoose'}}">
+      <image wx:if="{{image}}" class="photo" src="{{image}}" mode="aspectFill" />
+      <view wx:else class="placeholder">+ 选照片</view>
+    </view>
+    <view class="change" wx:if="{{image}}" bindtap="onChoose">换一张</view>
+
+    <view class="label caption-label">一句话（可选）</view>
+    <input
+      maxlength="40"
+      placeholder="例如：今天天气很好"
+      value="{{caption}}"
+      bindinput="onInput"
+    />
+  </view>
+  <button class="btn-primary submit" loading="{{submitting}}" bindtap="onSubmit">放进照片墙</button>
+</view>

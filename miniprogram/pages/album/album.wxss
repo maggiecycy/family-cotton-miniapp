@@ -1,0 +1,62 @@
+.album {
+  padding: 20rpx 24rpx 60rpx;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16rpx;
+  padding: 0 4rpx;
+}
+
+.hint {
+  color: #8a6b5e;
+  font-size: 24rpx;
+}
+
+.upload {
+  color: #d96b54;
+  font-size: 28rpx;
+  font-weight: 650;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16rpx;
+}
+
+.cell {
+  border-radius: 24rpx;
+  overflow: hidden;
+  background: rgba(255, 251, 247, 0.94);
+  border: 2rpx solid rgba(90, 55, 40, 0.06);
+}
+
+.img {
+  width: 100%;
+  height: 280rpx;
+  display: block;
+}
+
+.meta {
+  display: flex;
+  justify-content: space-between;
+  padding: 10rpx 14rpx 0;
+  font-size: 22rpx;
+  color: #8a6b5e;
+}
+
+.caption {
+  padding: 6rpx 14rpx 0;
+  font-size: 24rpx;
+  color: #3b2a24;
+}
+
+.save {
+  padding: 12rpx 14rpx 16rpx;
+  color: #d96b54;
+  font-size: 24rpx;
+  font-weight: 600;
+}

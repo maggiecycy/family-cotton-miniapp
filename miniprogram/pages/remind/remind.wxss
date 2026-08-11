@@ -1,0 +1,46 @@
+.remind {
+  padding: 28rpx 24rpx;
+}
+
+.intro {
+  padding: 24rpx 26rpx;
+  border-radius: 24rpx;
+  background: rgba(255, 251, 247, 0.94);
+  color: #7a5c50;
+  font-size: 26rpx;
+  line-height: 1.55;
+  margin-bottom: 20rpx;
+  border: 2rpx solid rgba(90, 55, 40, 0.06);
+}
+
+.list {
+  border-radius: 28rpx;
+  overflow: hidden;
+  background: rgba(255, 251, 247, 0.94);
+  border: 2rpx solid rgba(90, 55, 40, 0.06);
+}
+
+.row {
+  min-height: 120rpx;
+  padding: 20rpx 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2rpx solid rgba(90, 55, 40, 0.05);
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.title {
+  font-size: 32rpx;
+  color: #3b2a24;
+  font-weight: 650;
+}
+
+.desc {
+  margin-top: 6rpx;
+  font-size: 24rpx;
+  color: #8a6b5e;
+}

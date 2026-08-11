@@ -1,50 +1,32 @@
-const { fetchTimeline, reactTimeline, fetchTransferStats, isDemo, isCloudReady } = require('../../utils/cloud')
-const { canPublish } = require('../../utils/auth')
-const { markTimelineReadFromList, refreshTimelineBadge } = require('../../utils/unread')
-const { resolveTimelineMedia } = require('../../utils/media')
+const { fetchTimeline, reactTimeline, fetchTransferStats } = require('../../utils/cloud')
+const { canPublish, canPublishPhoto } = require('../../utils/auth')
+const { markTimelineRead, refreshTimelineBadge } = require('../../utils/unread')
+const { relativeDayLabel } = require('../../utils/date')
+const { saveImageToAlbum } = require('../../utils/permission')
 
-function buildMonthOptions(list) {
-  const keys = new Set()
-  ;(list || []).forEach((item) => {
-    const d = new Date(item.createdAt || 0)
-    if (!item.createdAt) return
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
-    keys.add(key)
-  })
-  const sorted = Array.from(keys).sort().reverse()
-  const options = [{ key: 'all', label: '全部月份' }]
-  sorted.forEach((key) => {
-    const [, m] = key.split('-')
-    options.push({ key, label: `${parseInt(m, 10)}月` })
-  })
-  return options
-}
-
-function filterByMonth(list, monthKey) {
-  if (!monthKey || monthKey === 'all') return list || []
-  const [y, m] = monthKey.split('-').map((v) => parseInt(v, 10))
-  return (list || []).filter((item) => {
-    const d = new Date(item.createdAt || 0)
-    return d.getFullYear() === y && d.getMonth() + 1 === m
-  })
+function roleShort(role) {
+  if (role === 'dad') return '爸爸'
+  if (role === 'grandma') return '外婆'
+  if (role === 'mom') return '妈妈'
+  return '家长'
 }
 
 Page({
   data: {
     demoMode: true,
-    fontClass: 'font-larger',
     canPublish: false,
+    canPublishPhoto: false,
     filter: 'all',
-    monthFilter: 'all',
-    monthOptions: [{ key: 'all', label: '全部月份' }],
     transferRange: 'year',
     filters: [
       { key: 'all', label: '全部' },
       { key: 'voice', label: '语音' },
       { key: 'transfer', label: '心意' },
-      { key: 'note', label: '纸条' }
+      { key: 'note', label: '纸条' },
+      { key: 'photo', label: '照片墙' }
     ],
     list: [],
+    photoList: [],
     speakingId: '',
     fabOpen: false,
     stats: {
@@ -57,6 +39,7 @@ Page({
     }
   },
 
+
   onShow() {
     const app = getApp()
     const preferred = wx.getStorageSync('timelineFilter')
@@ -67,11 +50,12 @@ Page({
     const transferRange = wx.getStorageSync('transferRange') || 'year'
     this.setData({
       demoMode: !!app.globalData.demoMode,
-      fontClass: app.globalData.fontScale === 'larger' ? 'font-larger' : '',
       canPublish: canPublish(),
+      canPublishPhoto: canPublishPhoto(),
       transferRange
     })
     this.loadList()
+    markTimelineRead()
   },
 
   onHide() {
@@ -81,18 +65,19 @@ Page({
   async loadList() {
     wx.showNavigationBarLoading()
     try {
-      const raw = await fetchTimeline(this.data.filter)
-      const monthOptions = buildMonthOptions(raw)
-      let list = filterByMonth(raw, this.data.monthFilter)
-      if (!isDemo() && isCloudReady()) {
-        list = await resolveTimelineMedia(list)
+      const list = await fetchTimeline(this.data.filter)
+      const patch = { list }
+      if (this.data.filter === 'photo') {
+        patch.photoList = list.map((item) => ({
+          ...item,
+          roleLabel: roleShort(item.fromRole),
+          dayLabel: relativeDayLabel(item.createdAt)
+        }))
       }
-      const patch = { list, monthOptions }
       if (this.data.filter === 'transfer') {
         patch.stats = await fetchTransferStats(this.data.transferRange)
       }
       this.setData(patch)
-      markTimelineReadFromList(raw)
     } catch (e) {
       wx.showToast({ title: '加载失败', icon: 'none' })
     } finally {
@@ -102,12 +87,7 @@ Page({
 
   onFilter(e) {
     const key = e.currentTarget.dataset.key
-    this.setData({ filter: key, monthFilter: 'all' }, () => this.loadList())
-  },
-
-  onMonthFilter(e) {
-    const monthFilter = e.currentTarget.dataset.key
-    this.setData({ monthFilter }, () => this.loadList())
+    this.setData({ filter: key }, () => this.loadList())
   },
 
   onRange(e) {
@@ -150,5 +130,16 @@ Page({
     this.setData({ fabOpen: false })
     if (!url) return
     wx.navigateTo({ url })
+  },
+
+  onPreviewPhoto(e) {
+    const src = e.currentTarget.dataset.src
+    const urls = this.data.photoList.map((p) => p.image)
+    wx.previewImage({ current: src, urls: urls.length ? urls : [src] })
+  },
+
+  async onSavePhoto(e) {
+    const src = e.currentTarget.dataset.src
+    await saveImageToAlbum(src)
   }
 })

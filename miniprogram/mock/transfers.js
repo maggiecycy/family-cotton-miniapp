@@ -17,6 +17,27 @@ function at(dateStr, timeStr = '12:00:00') {
 const SEED_TRANSFERS = [
   // —— 收入：妈妈 → 曹艳 ——
   {
+    tradeNo: '1000050001202608100629274726122',
+    direction: 'mom_to_daughter',
+    amount: 200,
+    createdAt: at('2026-08-10', '17:53:55'),
+    remark: '腿摔伤了',
+    message: '收到啦，谢谢你。',
+    category: '关心',
+    status: 'received'
+  },
+  {
+    tradeNo: 'manual-grandma-20260811',
+    direction: 'parent_to_daughter',
+    fromRole: 'grandma',
+    amount: 100,
+    createdAt: at('2026-08-11', '12:38:00'),
+    remark: '外婆转来买点吃的',
+    message: '好，谢谢外婆～',
+    category: '红包',
+    status: 'received'
+  },
+  {
     tradeNo: 'manual-20260808-221',
     direction: 'mom_to_daughter',
     amount: 221,
@@ -57,6 +78,19 @@ const SEED_TRANSFERS = [
   { tradeNo: '1000050001202510130520890513855', direction: 'mom_to_daughter', amount: 200, createdAt: at('2025-10-13', '11:02:23'), remark: '微信转账', category: '红包', status: 'received' },
   { tradeNo: '1000050001202510081026835776879', direction: 'mom_to_daughter', amount: 200, createdAt: at('2025-10-08', '17:44:40'), remark: '微信转账', category: '红包', status: 'received' },
   { tradeNo: '1000050001202508230125417766109', direction: 'mom_to_daughter', amount: 1500, createdAt: at('2025-08-23', '19:20:54'), remark: '微信转账', category: '生活费', status: 'received' },
+
+  // —— 收入：爸爸 → 曹艳 ——
+  {
+    tradeNo: 'manual-dad-tuition-20250916',
+    direction: 'dad_to_daughter',
+    fromRole: 'dad',
+    amount: 8000,
+    createdAt: at('2025-09-16', '09:34:35'),
+    remark: '学费',
+    message: '收到啦，谢谢你。',
+    category: '学费',
+    status: 'received'
+  },
 
   // —— 支出：曹艳 → 妈妈 ——
   {

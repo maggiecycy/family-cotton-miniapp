@@ -1,17 +1,33 @@
-const { roleLabel, canPublish } = require('../../utils/auth')
-const { bindFamily } = require('../../utils/cloud')
+const { roleLabel, canPublish, isParent } = require('../../utils/auth')
+const { createFamilyInvite } = require('../../utils/cloud')
 const { setLastReadAt, refreshTimelineBadge } = require('../../utils/unread')
+const { getInviteCode, buildShareAppMessage, buildShareTimeline } = require('../../utils/invite')
+const { openAppSetting } = require('../../utils/permission')
 
 Page({
   data: {
     demoMode: true,
-    largerFont: true,
-    fontClass: 'font-larger',
     role: 'guest',
     roleText: '访客（未绑定）',
     isPublisher: false,
+    isParent: false,
     inviteCode: 'COTTON888',
     weatherCity: '家里这座城'
+  },
+
+  onLoad() {
+    wx.showShareMenu({
+      withShareTicket: true,
+      menus: ['shareAppMessage', 'shareTimeline']
+    })
+  },
+
+  onShareAppMessage() {
+    return buildShareAppMessage()
+  },
+
+  onShareTimeline() {
+    return buildShareTimeline()
   },
 
   onShow() {
@@ -22,14 +38,13 @@ Page({
   refresh() {
     const app = getApp()
     const role = app.globalData.role || 'guest'
-    const largerFont = app.globalData.fontScale !== 'normal'
     this.setData({
       demoMode: !!app.globalData.demoMode,
-      largerFont,
-      fontClass: largerFont ? 'font-larger' : '',
       role,
       roleText: roleLabel(role),
       isPublisher: canPublish(),
+      isParent: isParent(),
+      inviteCode: getInviteCode(),
       weatherCity: wx.getStorageSync('weatherCity') || '家里这座城'
     })
   },
@@ -40,19 +55,12 @@ Page({
     if (on) {
       setLastReadAt(Date.now() - 3 * 24 * 60 * 60 * 1000)
       refreshTimelineBadge()
-    } else {
-      getApp().bootstrapCloud()
     }
     this.refresh()
     wx.showToast({
       title: on ? '演示模式已开' : '演示模式已关（将走云数据）',
       icon: 'none'
     })
-  },
-
-  onFontChange(e) {
-    getApp().setFontScale(e.detail.value ? 'larger' : 'normal')
-    this.refresh()
   },
 
   onPickRole() {
@@ -89,50 +97,50 @@ Page({
   },
 
   onInvite() {
-    if (this.data.demoMode) {
-      wx.setClipboardData({
-        data: this.data.inviteCode,
-        success: () => wx.showToast({ title: '演示邀请码已复制', icon: 'none' })
+    wx.setClipboardData({
+      data: this.data.inviteCode,
+      success: () => wx.showToast({ title: '邀请码已复制', icon: 'none' })
+    })
+  },
+
+  async onCreateInvite() {
+    wx.showLoading({ title: '生成中' })
+    try {
+      const result = await createFamilyInvite()
+      wx.hideLoading()
+      if (result && result.ok && result.inviteCode) {
+        wx.setStorageSync('inviteCode', result.inviteCode)
+        if (result.familyId) {
+          getApp().globalData.familyId = result.familyId
+          wx.setStorageSync('familyId', result.familyId)
+        }
+        getApp().setRole('daughter')
+        this.refresh()
+        wx.showModal({
+          title: result.demo ? '演示邀请码' : '真实邀请码已生成',
+          content: `请把邀请码发给爸妈：\n${result.inviteCode}`,
+          showCancel: false
+        })
+      } else {
+        wx.showToast({ title: (result && result.message) || '生成失败', icon: 'none' })
+      }
+    } catch (e) {
+      wx.hideLoading()
+      console.warn(e)
+      wx.showModal({
+        title: '生成失败',
+        content: '请先部署云函数 bindFamily；或暂时打开演示模式用 COTTON888。',
+        showCancel: false
       })
-      return
     }
-    wx.showToast({ title: '请先开通并配置云开发', icon: 'none' })
+  },
+
+  onOpenSetting() {
+    openAppSetting()
   },
 
   onBind() {
-    wx.showModal({
-      title: '输入家庭邀请码',
-      editable: true,
-      placeholderText: '例如 COTTON888',
-      success: (res) => {
-        if (!res.confirm) return
-        const code = (res.content || '').trim()
-        if (!code) return
-        wx.showActionSheet({
-          itemList: ['我是妈妈', '我是爸爸'],
-          success: async (pick) => {
-            const role = pick.tapIndex === 1 ? 'dad' : 'mom'
-            try {
-              const result = await bindFamily(code, role)
-              if (result && result.ok) {
-                getApp().globalData.familyId = result.familyId
-                wx.setStorageSync('familyId', result.familyId)
-                getApp().setRole(role)
-                this.refresh()
-                wx.showToast({
-                  title: role === 'dad' ? '爸爸绑定成功' : '妈妈绑定成功',
-                  icon: 'success'
-                })
-              } else {
-                wx.showToast({ title: (result && result.message) || '绑定失败', icon: 'none' })
-              }
-            } catch (e) {
-              wx.showToast({ title: '绑定失败', icon: 'none' })
-            }
-          }
-        })
-      }
-    })
+    wx.navigateTo({ url: `/pages/bind/bind?invite=${encodeURIComponent(this.data.inviteCode)}` })
   },
 
   go(e) {

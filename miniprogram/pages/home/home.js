@@ -4,7 +4,7 @@ const { fetchWeather } = require('../../utils/weather')
 const { refreshTimelineBadge } = require('../../utils/unread')
 const { getHoliday } = require('../../utils/holiday')
 const { getRole } = require('../../utils/auth')
-const onboarding = require('../../utils/onboarding')
+const { saveImageToAlbum } = require('../../utils/permission')
 const {
   getState,
   getLine,
@@ -16,7 +16,6 @@ const {
 Page({
   data: {
     demoMode: true,
-    fontClass: '',
     expression: DEFAULT_KEY,
     speaking: false,
     moodLabel: '默认',
@@ -32,18 +31,13 @@ Page({
     textAnim: 'text-in',
     companionDays: 1,
     voiceMonth: 0,
-    transferMonth: 0,
-    showOnboard: false,
-    onboardStep: 0
+    transferMonth: 0
   },
 
   onShow() {
     this.syncAppState()
     this.loadHome()
     refreshTimelineBadge()
-    if (onboarding.shouldShow()) {
-      this.setData({ showOnboard: true, onboardStep: 0 })
-    }
   },
 
   onHide() {
@@ -60,11 +54,9 @@ Page({
 
   syncAppState() {
     const app = getApp()
-    const fontScale = app.globalData.fontScale || 'normal'
     const viewerRole = getRole()
     this.setData({
       demoMode: !!app.globalData.demoMode,
-      fontClass: fontScale === 'larger' ? 'font-larger' : '',
       companionDays: daysBetween(app.globalData.companionStartAt || Date.now()),
       viewerRole
     })
@@ -74,7 +66,10 @@ Page({
     const key = stateKey || this.data.expression || 'idle'
     const role = this.data.viewerRole || getRole()
     if (key === 'idle') {
-      if (this._holiday && this._holiday.line) return this._holiday.line
+      if (this._holiday && this._holiday.line) {
+        const line = this._holiday.line
+        return role === 'dad' ? line.replace(/妈/g, '爸').replace(/妈妈/g, '爸爸') : line
+      }
       if (this._weatherAdvice) return this._weatherAdvice
     }
     return getLine(key, role)
@@ -120,6 +115,20 @@ Page({
     audio.onEnded(() => this.setData({ speaking: false }))
     audio.onStop(() => this.setData({ speaking: false }))
     audio.onError(() => {
+      if (this._triedDadFallback) {
+        this._triedDadFallback = false
+        this.setData({ speaking: false })
+        wx.showToast({ title: '录音播放失败，请检查音频文件', icon: 'none' })
+        return
+      }
+      const role = this.data.viewerRole || getRole()
+      if (role === 'dad') {
+        this._triedDadFallback = true
+        const st = getState(this.data.expression)
+        audio.src = st.audio
+        audio.play()
+        return
+      }
       this.setData({ speaking: false })
       wx.showToast({ title: '录音播放失败，请检查音频文件', icon: 'none' })
     })
@@ -132,9 +141,11 @@ Page({
       this.stopGreet()
       return
     }
+    const role = this.data.viewerRole || getRole()
     const audio = this.ensureAudio()
+    this._triedDadFallback = false
     audio.stop()
-    audio.src = getAudio(this.data.expression)
+    audio.src = getAudio(this.data.expression, role)
     this.setData({ speaking: true })
     audio.play()
   },
@@ -160,6 +171,11 @@ Page({
     this.setData({ speaking: false })
   },
 
+  async onSavePortrait() {
+    const src = getState(this.data.expression).src
+    await saveImageToAlbum(src)
+  },
+
   goListen() {
     wx.switchTab({ url: '/pages/timeline/timeline' })
     wx.setStorageSync('timelineFilter', 'voice')
@@ -168,20 +184,5 @@ Page({
   goTransfers() {
     wx.switchTab({ url: '/pages/timeline/timeline' })
     wx.setStorageSync('timelineFilter', 'transfer')
-  },
-
-  onOnboardNext() {
-    const step = this.data.onboardStep + 1
-    if (step >= 3) {
-      onboarding.markDone()
-      this.setData({ showOnboard: false })
-      return
-    }
-    this.setData({ onboardStep: step })
-  },
-
-  onOnboardSkip() {
-    onboarding.markDone()
-    this.setData({ showOnboard: false })
   }
 })

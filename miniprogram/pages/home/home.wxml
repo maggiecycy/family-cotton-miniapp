@@ -1,10 +1,11 @@
-<view class="page home {{demoMode ? 'page--demo' : ''}} {{fontClass}}">
+<view class="page home {{demoMode ? 'page--demo' : ''}}">
   <view class="hero">
     <avatar-girl
       expression="{{expression}}"
       speaking="{{speaking}}"
       show-hint="{{false}}"
       bind:play="onPlayGreet"
+      bind:longsave="onSavePortrait"
     />
     <view class="hero-shade"></view>
     <view class="hero-copy {{textAnim}}">
@@ -46,32 +47,6 @@
       <button class="btn-primary" bindtap="goListen">听女儿留言</button>
       <button class="btn-secondary" bindtap="goTransfers">看看家长的心意</button>
     </view>
-  </view>
-</view>
-
-<view class="onboard-mask" wx:if="{{showOnboard}}" catchtouchmove="true">
-  <view class="onboard-card">
-    <view class="onboard-tag">第一次用？</view>
-    <block wx:if="{{onboardStep === 0}}">
-      <view class="onboard-title">听问候</view>
-      <view class="onboard-desc">点照片或下方文字，就能听到女儿录好的问候。</view>
-    </block>
-    <block wx:elif="{{onboardStep === 1}}">
-      <view class="onboard-title">换心情</view>
-      <view class="onboard-desc">点「换表情」，看看不同心情下的照片和问候。</view>
-    </block>
-    <block wx:else>
-      <view class="onboard-title">看留言</view>
-      <view class="onboard-desc">底部「听女儿留言」进入时光轴，语音、心意、纸条都在这里。</view>
-    </block>
-    <view class="onboard-dots">
-      <view class="dot {{onboardStep === 0 ? 'on' : ''}}"></view>
-      <view class="dot {{onboardStep === 1 ? 'on' : ''}}"></view>
-      <view class="dot {{onboardStep === 2 ? 'on' : ''}}"></view>
-    </view>
-    <view class="onboard-actions">
-      <view class="onboard-skip" bindtap="onOnboardSkip">跳过</view>
-      <view class="onboard-next" bindtap="onOnboardNext">{{onboardStep >= 2 ? '知道了' : '下一步'}}</view>
-    </view>
+    <view class="save-hint" bindtap="onSavePortrait">长按写真也可保存到手机相册</view>
   </view>
 </view>

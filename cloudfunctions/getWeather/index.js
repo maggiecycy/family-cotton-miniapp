@@ -1,17 +1,18 @@
 const cloud = require('wx-server-sdk')
 const https = require('https')
+const zlib = require('zlib')
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 
 /**
  * 天气云函数
  *
- * 配置：
- * - 环境变量 QWEATHER_KEY = 和风天气 Key（可选）
- * - 环境变量 DEFAULT_CITY = 默认城市，如「北京」
- * - 未配置 Key 时返回温和假数据，保证演示不挂
+ * 环境变量（和风 Console V4）：
+ * - QWEATHER_KEY   = API KEY（凭据页复制）
+ * - QWEATHER_HOST  = 专属 API Host，如 abc123.def.qweatherapi.com（设置页复制，不要 https://）
+ * - DEFAULT_CITY   = 默认城市，如「宣城」
  *
- * 文档：https://dev.qweather.com/
+ * 文档：https://dev.qweather.com/docs/configuration/api-host/
  */
 
 function clothingAdvice(tempC) {
@@ -25,23 +26,48 @@ function clothingAdvice(tempC) {
   return '天热要注意中暑，尽量待阴凉处。'
 }
 
-function getJson(url) {
+function getJson(host, path, key) {
   return new Promise((resolve, reject) => {
-    https
-      .get(url, (resp) => {
-        let data = ''
-        resp.on('data', (chunk) => {
-          data += chunk
-        })
+    const req = https.request(
+      {
+        hostname: host,
+        path,
+        method: 'GET',
+        headers: {
+          'X-QW-Api-Key': key,
+          Accept: 'application/json',
+          'Accept-Encoding': 'gzip'
+        }
+      },
+      (resp) => {
+        const chunks = []
+        resp.on('data', (chunk) => chunks.push(chunk))
         resp.on('end', () => {
-          try {
-            resolve(JSON.parse(data))
-          } catch (e) {
-            reject(e)
+          const buf = Buffer.concat(chunks)
+          const encoding = (resp.headers['content-encoding'] || '').toLowerCase()
+          const done = (raw) => {
+            const text = raw.toString('utf8').trim()
+            if (resp.statusCode < 200 || resp.statusCode >= 300) {
+              reject(new Error(`HTTP ${resp.statusCode}: ${text.slice(0, 120) || 'empty'}`))
+              return
+            }
+            if (!text) {
+              reject(new Error('empty response (check QWEATHER_HOST)'))
+              return
+            }
+            try {
+              resolve(JSON.parse(text))
+            } catch (e) {
+              reject(new Error(`invalid JSON: ${text.slice(0, 120)}`))
+            }
           }
+          if (encoding.includes('gzip')) zlib.gunzip(buf, (err, out) => (err ? reject(err) : done(out)))
+          else done(buf)
         })
-      })
-      .on('error', reject)
+      }
+    )
+    req.on('error', reject)
+    req.end()
   })
 }
 
@@ -60,16 +86,27 @@ function fallback(city) {
   }
 }
 
-async function fetchQWeather(city, key) {
-  const geoUrl = `https://geoapi.qweather.com/v2/city/lookup?location=${encodeURIComponent(
-    city
-  )}&key=${key}`
-  const geo = await getJson(geoUrl)
+function normalizeHost(raw) {
+  return String(raw || '')
+    .trim()
+    .replace(/^https?:\/\//, '')
+    .replace(/\/+$/, '')
+}
+
+async function fetchQWeather(city, key, host) {
+  const geoPath = `/geo/v2/city/lookup?location=${encodeURIComponent(city)}&number=5`
+  const geo = await getJson(host, geoPath, key)
+  if (geo.code && geo.code !== '200') {
+    throw new Error(`geo ${geo.code}: ${(geo.error && geo.error.detail) || 'lookup failed'}`)
+  }
   const loc = geo && geo.location && geo.location[0]
   if (!loc) throw new Error('city not found')
 
-  const weatherUrl = `https://devapi.qweather.com/v7/weather/now?location=${loc.id}&key=${key}`
-  const weather = await getJson(weatherUrl)
+  const weatherPath = `/v7/weather/now?location=${loc.id}`
+  const weather = await getJson(host, weatherPath, key)
+  if (weather.code && weather.code !== '200') {
+    throw new Error(`weather ${weather.code}: ${(weather.error && weather.error.detail) || 'now failed'}`)
+  }
   const now = weather && weather.now
   if (!now) throw new Error('weather empty')
 
@@ -87,11 +124,18 @@ async function fetchQWeather(city, key) {
 exports.main = async (event) => {
   const city = (event && event.city) || process.env.DEFAULT_CITY || '北京'
   const key = process.env.QWEATHER_KEY || ''
+  const host = normalizeHost(process.env.QWEATHER_HOST)
 
   if (!key) return fallback(city)
+  if (!host) {
+    return {
+      ...fallback(city),
+      warning: 'missing QWEATHER_HOST (copy from QWeather console → Settings)'
+    }
+  }
 
   try {
-    return await fetchQWeather(city, key)
+    return await fetchQWeather(city, key, host)
   } catch (e) {
     console.warn('getWeather failed', e)
     return { ...fallback(city), warning: String(e && e.message) }

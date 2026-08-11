@@ -1,29 +1,31 @@
-const { relativeDayLabel, formatDate } = require('../../utils/date')
-
 function transferLabel(direction, fromRole) {
   if (direction === 'daughter_to_mom' || direction === 'daughter_to_parent') {
     if (fromRole === 'dad') return '给爸爸的心意'
     if (fromRole === 'mom') return '给妈妈的心意'
-    return '给家长的心意'
+    return '给爸妈的心意'
   }
+  if (fromRole === 'grandma') return '外婆的心意'
   if (fromRole === 'dad') return '爸爸的心意'
   if (fromRole === 'mom') return '妈妈的心意'
-  return '家长的心意'
+  if (direction === 'dad_to_daughter') return '爸爸的心意'
+  if (direction === 'mom_to_daughter') return '妈妈的心意'
+  return '爸妈的心意'
 }
 
 function directionText(direction, fromRole) {
   if (direction === 'daughter_to_mom' || direction === 'daughter_to_parent') {
     if (fromRole === 'dad') return '女儿 → 爸爸'
     if (fromRole === 'mom') return '女儿 → 妈妈'
-    return '女儿 → 家长'
+    return '女儿 → 爸妈'
   }
-  if (direction === 'mom_to_daughter' || direction === 'parent_to_daughter') {
-    if (fromRole === 'dad') return '爸爸 → 女儿'
-    if (fromRole === 'mom') return '妈妈 → 女儿'
-    return '家长 → 女儿'
-  }
+  if (direction === 'dad_to_daughter' || fromRole === 'dad') return '爸爸 → 女儿'
+  if (fromRole === 'grandma') return '外婆 → 女儿'
+  if (direction === 'mom_to_daughter' || fromRole === 'mom') return '妈妈 → 女儿'
+  if (direction === 'parent_to_daughter') return '家长 → 女儿'
   return ''
 }
+
+const INCOME_DIRECTIONS = ['mom_to_daughter', 'dad_to_daughter', 'parent_to_daughter']
 
 Component({
   properties: {
@@ -44,6 +46,7 @@ Component({
   observers: {
     item(val) {
       if (!val) return
+      const { relativeDayLabel, formatDate } = require('../../utils/date')
       const day = relativeDayLabel(val.createdAt)
       const clock = formatDate(val.createdAt).slice(11)
       let typeLabel = '纪录'
@@ -52,10 +55,7 @@ Component({
       if (val.type === 'transfer') {
         typeLabel = transferLabel(val.direction, val.fromRole)
         dirText = directionText(val.direction, val.fromRole)
-        directionClass =
-          val.direction === 'daughter_to_mom' || val.direction === 'daughter_to_parent'
-            ? 'tag--out'
-            : 'tag--in'
+        directionClass = INCOME_DIRECTIONS.includes(val.direction) ? 'tag--in' : 'tag--out'
       } else if (val.type === 'voice') {
         typeLabel = '语音留言'
       } else if (val.type === 'note') {
@@ -87,15 +87,6 @@ Component({
 
     onVoiceEnded() {
       this.triggerEvent('voiceended', { id: this.properties.item._id })
-    },
-
-    onPreviewImage(e) {
-      const src = e.currentTarget.dataset.src
-      const images = (this.properties.item && this.properties.item.images) || []
-      wx.previewImage({
-        current: src,
-        urls: images.length ? images : [src]
-      })
     }
   }
 })

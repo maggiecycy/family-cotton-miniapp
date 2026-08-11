@@ -1,0 +1,30 @@
+<view class="page album">
+  <view class="toolbar">
+    <view class="hint">家庭照片墙 · 长按可保存到手机</view>
+    <view class="upload" wx:if="{{canUpload}}" bindtap="goUpload">上传</view>
+  </view>
+
+  <view class="grid" wx:if="{{list.length}}">
+    <view class="cell" wx:for="{{list}}" wx:key="_id">
+      <image
+        class="img"
+        src="{{item.image}}"
+        mode="aspectFill"
+        data-src="{{item.image}}"
+        bindtap="onPreview"
+        bindlongpress="onSave"
+      />
+      <view class="meta">
+        <text>{{item.roleLabel}}</text>
+        <text>{{item.dayLabel}}</text>
+      </view>
+      <view class="caption" wx:if="{{item.text}}">{{item.text}}</view>
+      <view class="save" data-src="{{item.image}}" bindtap="onSave">保存到相册</view>
+    </view>
+  </view>
+
+  <view wx:else class="empty">
+    <view class="empty-title">相册还是空的</view>
+    <view class="empty-desc">家长可上传照片；女儿写真也可在首页长按保存。</view>
+  </view>
+</view>

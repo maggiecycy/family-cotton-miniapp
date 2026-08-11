@@ -1,0 +1,9 @@
+{
+  "name": "saveSubscribe",
+  "version": "1.0.0",
+  "description": "保存用户 openid 与订阅消息授权结果",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

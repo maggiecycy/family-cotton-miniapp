@@ -1,0 +1,20 @@
+<view class="page festival">
+  <view class="hero-card {{isHoliday ? 'is-holiday' : ''}}">
+    <view class="eyebrow">{{isHoliday ? '今日节日' : '今日'}}</view>
+    <view class="name">{{todayName}}</view>
+    <view class="line">{{todayLine}}</view>
+    <view class="daily" wx:if="{{dailyLine}}">云端关心句：{{dailyLine}}</view>
+  </view>
+
+  <view class="section-title">接下来的节日</view>
+  <view class="list" wx:if="{{upcoming.length}}">
+    <view class="item" wx:for="{{upcoming}}" wx:key="key">
+      <view class="date">{{item.dateLabel}}</view>
+      <view class="body">
+        <view class="item-name">{{item.name}}</view>
+        <view class="item-line">{{item.line}}</view>
+      </view>
+    </view>
+  </view>
+  <view wx:else class="empty">近期暂无节日条目</view>
+</view>

@@ -17,7 +17,7 @@
 | 1. 注册和风并拿到 API KEY | **已完成** | 凭据 `cici`，控制台已能看到 API KEY |
 | 2. 开通云开发环境 | **已完成** | 环境名 `cloudbase`，环境 ID 已写入 `app.js` |
 | 3. 部署云函数 `getWeather` | **待做** | 开发者工具里右键上传并部署 |
-| 4. 云函数环境变量填 Key | **待做** | `QWEATHER_KEY` + `DEFAULT_CITY` |
+| 4. 云函数环境变量 | **待做** | `QWEATHER_KEY` + **`QWEATHER_HOST`** + `DEFAULT_CITY` |
 | 5. 小程序关演示 + 设城市 | **待做** | 「我的」关闭演示模式；首页天气旁有「演示」标签时仍是假数据 |
 | 6. 编译验证真天气 | **待做** | 首页默认状态看气温 |
 
@@ -59,8 +59,11 @@
 
 | 变量名 | 值 |
 |--------|-----|
-| `QWEATHER_KEY` | （粘贴和风 API KEY） |
+| `QWEATHER_KEY` | 和风控制台 → 凭据 → **API KEY** |
+| `QWEATHER_HOST` | 和风控制台 → **设置** → **API Host**（如 `abc123.def.qweatherapi.com`，不要带 `https://`） |
 | `DEFAULT_CITY` | `宣城` |
+
+> 旧公共域名 `geoapi.qweather.com` / `devapi.qweather.com` 已逐步停用，未配 `QWEATHER_HOST` 会返回空响应 → `Unexpected end of JSON input`。
 
 4. 保存  
 5. 如提示需重新部署，再右键部署一次 `getWeather`
@@ -103,7 +106,8 @@
 | 问题 | 处理 |
 |------|------|
 | 云开发点不了 | 必须用真实 AppID（你已有「给妈妈的小棉袄」） |
-| 关了演示仍是假天气 | 查：函数是否部署、环境变量是否保存、和风是否还在 1～2 小时生效期 |
+| 关了演示仍是假天气 | 查：函数是否部署、`QWEATHER_HOST`+Key 是否保存、和风是否还在 1～2 小时生效期 |
+| 云端测试 `Unexpected end of JSON input` | 未配专属 **API Host**，或仍用旧公共域名；见步骤 B |
 | 城市不对 | 「我的」改天气城市，或改 `DEFAULT_CITY` |
 | 想换天气服务 | 只改云函数 `getWeather`，小程序不用动 |
 

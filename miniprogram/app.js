@@ -1,21 +1,22 @@
-const { ensureDemoSeed } = require('./utils/storage')
+const { ensureDemoSeed, ensureCompanionStart } = require('./utils/storage')
+const { setPendingInvite, peekPendingInvite } = require('./utils/invite')
 
 App({
   globalData: {
     demoMode: true,
-    fontScale: 'normal',
     role: 'guest',
     familyId: '',
     userInfo: null,
     cloudReady: false,
-    companionStartAt: Date.now() - 1000 * 60 * 60 * 24 * 128
+    companionStartAt: Date.now()
   },
 
-  onLaunch() {
+  onLaunch(options) {
     ensureDemoSeed()
+    ensureCompanionStart(this)
     this.loadLocalSettings()
     this.initCloud()
-    // Tab 就绪后刷新未读角标
+    this.captureInvite(options)
     setTimeout(() => {
       try {
         const { refreshTimelineBadge } = require('./utils/unread')
@@ -23,19 +24,41 @@ App({
       } catch (e) {
         console.warn('badge refresh skipped', e)
       }
+      this.maybeOpenBind()
     }, 400)
+  },
+
+  onShow(options) {
+    this.captureInvite(options)
+  },
+
+  captureInvite(options) {
+    const q = (options && options.query) || {}
+    const invite = q.invite || q.code || ''
+    if (invite) setPendingInvite(invite)
+  },
+
+  maybeOpenBind() {
+    const role = this.globalData.role || 'guest'
+    const pending = peekPendingInvite()
+    if (!pending) return
+    if (role === 'mom' || role === 'dad' || role === 'daughter') return
+    const pages = getCurrentPages()
+    const cur = pages && pages[pages.length - 1]
+    if (cur && cur.route === 'pages/bind/bind') return
+    wx.navigateTo({ url: `/pages/bind/bind?invite=${encodeURIComponent(pending)}` })
   },
 
   loadLocalSettings() {
     try {
       const demoMode = wx.getStorageSync('demoMode')
-      const fontScale = wx.getStorageSync('fontScale')
       const role = wx.getStorageSync('role')
       const familyId = wx.getStorageSync('familyId')
+      const companionStartAt = wx.getStorageSync('companionStartAt')
       if (typeof demoMode === 'boolean') this.globalData.demoMode = demoMode
-      if (fontScale) this.globalData.fontScale = fontScale
       if (role) this.globalData.role = role
       if (familyId) this.globalData.familyId = familyId
+      if (companionStartAt) this.globalData.companionStartAt = companionStartAt
     } catch (e) {
       console.warn('loadLocalSettings failed', e)
     }
@@ -52,45 +75,15 @@ App({
       wx.cloud.init({ env, traceUser: true })
       this.globalData.cloudReady = true
       this.globalData.cloudEnv = env
-      this.bootstrapCloud()
     } catch (e) {
       console.warn('cloud init skipped', e)
       this.globalData.cloudReady = false
     }
   },
 
-  async bootstrapCloud() {
-    if (!this.globalData.cloudReady || this.globalData.demoMode) return
-    try {
-      const { login } = require('./utils/cloud')
-      const session = await login()
-      if (session && session.openid) {
-        this.globalData.userInfo = {
-          ...(this.globalData.userInfo || {}),
-          openid: session.openid
-        }
-      }
-      if (session && session.familyId) {
-        this.globalData.familyId = session.familyId
-        wx.setStorageSync('familyId', session.familyId)
-      }
-      if (session && session.role && session.role !== 'guest') {
-        this.globalData.role = session.role
-        wx.setStorageSync('role', session.role)
-      }
-    } catch (e) {
-      console.warn('bootstrapCloud failed', e)
-    }
-  },
-
   setDemoMode(on) {
     this.globalData.demoMode = !!on
     wx.setStorageSync('demoMode', this.globalData.demoMode)
-  },
-
-  setFontScale(scale) {
-    this.globalData.fontScale = scale === 'normal' ? 'normal' : 'larger'
-    wx.setStorageSync('fontScale', this.globalData.fontScale)
   },
 
   setRole(role) {

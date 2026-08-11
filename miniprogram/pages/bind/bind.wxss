@@ -1,0 +1,67 @@
+.bind {
+  padding: 40rpx 28rpx;
+}
+
+.card {
+  padding: 36rpx 28rpx;
+  border-radius: 32rpx;
+  background: rgba(255, 251, 247, 0.96);
+  border: 2rpx solid rgba(90, 55, 40, 0.06);
+}
+
+.title {
+  font-size: 44rpx;
+  font-weight: 760;
+  color: #3b2a24;
+}
+
+.desc {
+  margin-top: 12rpx;
+  color: #7a5c50;
+  font-size: 28rpx;
+  line-height: 1.55;
+}
+
+.label {
+  margin-top: 32rpx;
+  margin-bottom: 12rpx;
+  color: #7a5c50;
+  font-size: 26rpx;
+}
+
+.input {
+  height: 88rpx;
+  padding: 0 24rpx;
+  border-radius: 20rpx;
+  background: #fff;
+  border: 2rpx solid rgba(90, 55, 40, 0.08);
+  font-size: 32rpx;
+  letter-spacing: 2rpx;
+}
+
+.roles {
+  display: flex;
+  gap: 16rpx;
+}
+
+.role-btn {
+  flex: 1;
+  margin: 0;
+  min-height: 92rpx;
+  border-radius: 24rpx;
+  background: linear-gradient(135deg, #e07a62, #d96b54);
+  color: #fff;
+  font-size: 32rpx;
+  font-weight: 650;
+}
+
+.role-btn::after {
+  border: none;
+}
+
+.link {
+  margin-top: 28rpx;
+  text-align: center;
+  color: #8a6b5e;
+  font-size: 26rpx;
+}

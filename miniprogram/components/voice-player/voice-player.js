@@ -1,5 +1,3 @@
-const { resolveCloudUrl, isCloudFileId } = require('../../utils/media')
-
 Component({
   properties: {
     src: {
@@ -28,7 +26,9 @@ Component({
       this._audio.obeyMuteSwitch = false
       this.bindAudioEvents()
       this.updateDurationText(this.properties.durationMs)
-      this.applySrc(this.properties.src)
+      if (this.properties.src) {
+        this._audio.src = this.properties.src
+      }
     },
     detached() {
       this.destroyAudio()
@@ -37,7 +37,10 @@ Component({
 
   observers: {
     src(val) {
-      this.applySrc(val)
+      if (!this._audio) return
+      this._audio.stop()
+      this._audio.src = val || ''
+      this.setData({ playing: false })
     },
     durationMs(val) {
       this.updateDurationText(val)
@@ -45,18 +48,6 @@ Component({
   },
 
   methods: {
-    async applySrc(val) {
-      if (!this._audio) return
-      this._audio.stop()
-      let src = val || ''
-      if (isCloudFileId(src)) {
-        src = await resolveCloudUrl(src)
-      }
-      this._resolvedSrc = src
-      this._audio.src = src
-      this.setData({ playing: false })
-    },
-
     bindAudioEvents() {
       this._audio.onPlay(() => {
         this.setData({ playing: true })
@@ -88,8 +79,7 @@ Component({
     },
 
     toggle() {
-      const src = this._resolvedSrc || this.properties.src
-      if (!src) {
+      if (!this.properties.src) {
         wx.showToast({ title: '暂无语音', icon: 'none' })
         return
       }

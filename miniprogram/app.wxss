@@ -19,11 +19,6 @@ page {
   box-sizing: border-box;
 }
 
-page.font-larger,
-.font-larger {
-  font-size: 36rpx;
-}
-
 .page {
   min-height: 100vh;
   box-sizing: border-box;

@@ -1,4 +1,4 @@
-<view class="page mine {{demoMode ? 'page--demo' : ''}} {{fontClass}}">
+<view class="page mine {{demoMode ? 'page--demo' : ''}}">
   <view class="profile">
     <view class="title">云端小棉袄-曹艳</view>
     <view class="role">当前身份：{{roleText}}</view>
@@ -10,10 +10,6 @@
       <text>演示模式</text>
       <switch checked="{{demoMode}}" color="#D96B54" bindchange="onDemoChange" />
     </view>
-    <view class="row">
-      <text>更大字体</text>
-      <switch checked="{{largerFont}}" color="#D96B54" bindchange="onFontChange" />
-    </view>
     <view class="row" bindtap="onPickRole">
       <text>切换体验身份</text>
       <text class="value">{{roleText}} ›</text>
@@ -22,35 +18,48 @@
       <text>天气城市</text>
       <text class="value">{{weatherCity}} ›</text>
     </view>
+    <view class="row" bindtap="onOpenSetting">
+      <text>系统权限设置</text>
+      <text class="value">麦克风/相册 ›</text>
+    </view>
     <view class="row" bindtap="onResetUnread" wx:if="{{demoMode}}">
       <text>演示：制造未读角标</text>
       <text class="value">›</text>
     </view>
   </view>
 
-  <view class="invite-card">
-    <view class="invite-title">家庭邀请</view>
+  <!-- 女儿视角：发出邀请 -->
+  <view class="invite-card" wx:if="{{isPublisher || demoMode}}">
+    <view class="invite-title">发给爸妈</view>
     <view class="invite-desc">
-      爸妈都能用：你把邀请码发给他们，他们打开小程序 → 输入邀请码 → 选「妈妈」或「爸爸」绑定。绑定后可看时光轴、听语音、点轻反馈；不能录音发帖。
+      演示码 COTTON888 只在「演示模式」下可用。关演示后请先点「生成真实邀请码」，再发给爸妈。
     </view>
-
-    <view class="invite-block">
-      <view class="invite-label">我的邀请码（发给家人）</view>
-      <view class="invite-code-row">
-        <text class="invite-code">{{inviteCode}}</text>
-        <view class="invite-btn" bindtap="onInvite">复制</view>
-      </view>
+    <view class="invite-code-row">
+      <text class="invite-code">{{inviteCode}}</text>
+      <view class="invite-btn" bindtap="onInvite">复制</view>
     </view>
+    <view class="invite-btn wide ghost" bindtap="onCreateInvite">生成真实邀请码</view>
+    <button class="invite-btn wide share-btn" open-type="share">分享给家人</button>
+    <view class="invite-tip">分享需微信认证通过后才可用；认证前请复制邀请码。</view>
+  </view>
 
-    <view class="invite-block">
-      <view class="invite-label">家人绑定入口（对方看到的步骤）</view>
-      <view class="bind-steps">
-        <view class="step">1. 打开「云端小棉袄-曹艳」</view>
-        <view class="step">2. 进「我的」→ 输入邀请码</view>
-        <view class="step">3. 选择身份：妈妈 / 爸爸</view>
-        <view class="step">4. 完成绑定，即可观看</view>
-      </view>
-      <view class="invite-btn wide" bindtap="onBind">输入邀请码绑定</view>
+  <!-- 家长视角：加入家庭 -->
+  <view class="invite-card soft" wx:if="{{!isPublisher || demoMode}}">
+    <view class="invite-title">我是家长 · 加入家庭</view>
+    <view class="invite-desc">
+      收到女儿发来的邀请码后，点下面按钮，选「妈妈」或「爸爸」完成绑定。
+    </view>
+    <view class="invite-btn wide ghost" bindtap="onBind">输入邀请码绑定</view>
+  </view>
+
+  <view class="group">
+    <view class="row" bindtap="go" data-url="/pages/festival/festival">
+      <text>节日卡片</text>
+      <text class="value">›</text>
+    </view>
+    <view class="row" bindtap="go" data-url="/pages/remind/remind">
+      <text>日常提醒</text>
+      <text class="value">›</text>
     </view>
   </view>
 
@@ -64,15 +73,22 @@
       <text class="value">›</text>
     </view>
     <view class="row" bindtap="go" data-url="/pages/publish-note/publish-note">
-      <text>写纸条（可带图）</text>
+      <text>写纸条</text>
+      <text class="value">›</text>
+    </view>
+  </view>
+
+  <view class="group" wx:if="{{isParent}}">
+    <view class="row" bindtap="go" data-url="/pages/publish-photo/publish-photo">
+      <text>上传照片到照片墙</text>
       <text class="value">›</text>
     </view>
   </view>
 
   <view class="group">
-    <view class="about-title">关于</view>
+    <view class="about-title">关于与隐私</view>
     <view class="about-body">
-      给爸妈：这是女儿曹艳做的小程序。你们给我的心意我都记着；我也会留下语音和小纸条陪你们。
+      给爸妈：这是女儿曹艳做的小程序。录音仅用于语音留言；相册/相机用于照片墙；保存到相册需你主动确认。详见项目文档 docs/PRIVACY.md，并请在公众平台同步配置用户隐私保护指引。
     </view>
   </view>
 </view>

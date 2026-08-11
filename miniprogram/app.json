@@ -3,9 +3,14 @@
     "pages/home/home",
     "pages/timeline/timeline",
     "pages/mine/mine",
+    "pages/bind/bind",
+    "pages/remind/remind",
+    "pages/festival/festival",
+    "pages/album/album",
     "pages/publish-transfer/publish-transfer",
     "pages/publish-voice/publish-voice",
-    "pages/publish-note/publish-note"
+    "pages/publish-note/publish-note",
+    "pages/publish-photo/publish-photo"
   ],
   "window": {
     "navigationBarTitleText": "云端小棉袄-曹艳",
@@ -40,6 +45,16 @@
       }
     ]
   },
+  "permission": {
+    "scope.record": {
+      "desc": "用于女儿录制语音问候与留言，陪伴家长收听"
+    },
+    "scope.writePhotosAlbum": {
+      "desc": "用于家长将女儿写真或家庭照片保存到手机相册"
+    }
+  },
+  "requiredPrivateInfos": [],
+  "__usePrivacyCheck__": true,
   "style": "v2",
   "sitemapLocation": "sitemap.json",
   "lazyCodeLoading": "requiredComponents"

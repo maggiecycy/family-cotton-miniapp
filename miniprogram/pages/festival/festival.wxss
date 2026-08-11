@@ -1,0 +1,97 @@
+.festival {
+  padding: 28rpx 24rpx 60rpx;
+}
+
+.hero-card {
+  padding: 36rpx 28rpx;
+  border-radius: 32rpx;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.92), rgba(255, 228, 210, 0.88));
+  border: 2rpx solid rgba(90, 55, 40, 0.06);
+  margin-bottom: 28rpx;
+}
+
+.hero-card.is-holiday {
+  background:
+    linear-gradient(145deg, rgba(255, 245, 235, 0.98), rgba(255, 210, 180, 0.92));
+  border-color: rgba(217, 107, 84, 0.22);
+}
+
+.hero-card.is-holiday .eyebrow {
+  font-size: 26rpx;
+}
+
+.eyebrow {
+  color: #c25540;
+  font-size: 24rpx;
+  font-weight: 650;
+}
+
+.name {
+  margin-top: 8rpx;
+  font-size: 48rpx;
+  font-weight: 760;
+  color: #3b2a24;
+}
+
+.line {
+  margin-top: 14rpx;
+  font-size: 30rpx;
+  color: #5a4036;
+  line-height: 1.55;
+}
+
+.daily {
+  margin-top: 18rpx;
+  padding-top: 16rpx;
+  border-top: 2rpx solid rgba(90, 55, 40, 0.08);
+  color: #8a6b5e;
+  font-size: 24rpx;
+  line-height: 1.5;
+}
+
+.section-title {
+  margin: 8rpx 8rpx 16rpx;
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #3b2a24;
+}
+
+.list {
+  border-radius: 28rpx;
+  overflow: hidden;
+  background: rgba(255, 251, 247, 0.94);
+  border: 2rpx solid rgba(90, 55, 40, 0.06);
+}
+
+.item {
+  display: flex;
+  gap: 20rpx;
+  padding: 22rpx 24rpx;
+  border-bottom: 2rpx solid rgba(90, 55, 40, 0.05);
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+.date {
+  min-width: 120rpx;
+  color: #d96b54;
+  font-size: 24rpx;
+  font-weight: 650;
+  padding-top: 4rpx;
+}
+
+.item-name {
+  font-size: 30rpx;
+  font-weight: 650;
+  color: #3b2a24;
+}
+
+.item-line {
+  margin-top: 6rpx;
+  font-size: 24rpx;
+  color: #8a6b5e;
+  line-height: 1.45;
+}

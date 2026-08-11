@@ -2,6 +2,7 @@
   "miniprogramRoot": "miniprogram/",
   "cloudfunctionRoot": "cloudfunctions/",
   "setting": {
+    "__usePrivacyCheck__": true,
     "urlCheck": true,
     "es6": true,
     "enhance": true,

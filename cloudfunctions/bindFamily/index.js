@@ -12,12 +12,12 @@ function randomCode() {
   return out
 }
 
-exports.main = async (event) => {
+exports.main = async (event = {}) => {
   const wxContext = cloud.getWXContext()
   const openid = wxContext.OPENID
   const inviteCode = (event.inviteCode || '').trim().toUpperCase()
-  const joinRole = event.role === 'dad' ? 'dad' : 'mom'
   const action = event.action || (inviteCode ? 'join' : 'create')
+  const role = event.role === 'dad' ? 'dad' : 'mom'
 
   const users = db.collection('users')
   const families = db.collection('families')
@@ -56,18 +56,30 @@ exports.main = async (event) => {
     return { ok: true, familyId: fam._id, inviteCode: code, role: 'daughter' }
   }
 
+  if (!inviteCode) {
+    return { ok: false, message: '请填写邀请码' }
+  }
+
+  // 演示码仅用于本地演示；云端需真实家庭邀请码
+  if (inviteCode === 'COTTON888') {
+    return {
+      ok: false,
+      message: 'COTTON888 仅演示用。请关闭演示前，先让女儿点「生成真实邀请码」'
+    }
+  }
+
   const famRes = await families.where({ inviteCode }).limit(1).get()
   const family = famRes.data && famRes.data[0]
   if (!family) {
-    return { ok: false, message: '邀请码无效' }
+    return { ok: false, message: '邀请码无效，请向女儿索取最新邀请码' }
   }
 
   await users.doc(user._id).update({
     data: {
-      role: joinRole,
+      role,
       familyId: family._id
     }
   })
 
-  return { ok: true, familyId: family._id, inviteCode, role: joinRole }
+  return { ok: true, familyId: family._id, inviteCode, role }
 }

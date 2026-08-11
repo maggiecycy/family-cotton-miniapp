@@ -4,23 +4,41 @@ const { canPublish } = require('../../utils/auth')
 const DIRECTIONS = [
   {
     key: 'mom_to_daughter',
-    label: '妈妈 → 我（感恩纪录）',
-    remark: '妈妈的心意',
-    message: '妈，我收到了，会好好吃饭的。谢谢你。',
-    categories: ['生活费', '红包', '看病相关', '随便花']
+    fromRole: 'mom',
+    label: '妈妈 → 我',
+    remark: '妈妈的转账',
+    message: '妈，我收到了，谢谢你。',
+    categories: ['生活费', '红包', '关心', '学费', '随便花']
+  },
+  {
+    key: 'dad_to_daughter',
+    fromRole: 'dad',
+    label: '爸爸 → 我',
+    remark: '爸爸的转账',
+    message: '爸，我收到了，谢谢你。',
+    categories: ['生活费', '红包', '学费', '随便花']
   },
   {
     key: 'daughter_to_mom',
-    label: '我 → 妈妈（回报心意）',
+    fromRole: 'mom',
+    label: '我 → 妈妈',
     remark: '给妈妈的小小心意',
     message: '一点心意，谢谢你一直照顾我。',
     categories: ['小小心意', '红包', '买药/水果', '随便花']
+  },
+  {
+    key: 'daughter_to_mom',
+    fromRole: 'dad',
+    label: '我 → 爸爸',
+    remark: '给爸爸的小小心意',
+    message: '一点心意，谢谢你一直照顾我。',
+    categories: ['小小心意', '红包', '随便花']
   }
 ]
 
 Page({
   data: {
-    fontClass: 'font-larger',
+    fontClass: '',
     amount: '',
     remark: '',
     message: '',
@@ -40,9 +58,7 @@ Page({
       return
     }
     const app = getApp()
-    this.setData({
-      fontClass: app.globalData.fontScale === 'larger' ? 'font-larger' : ''
-    })
+    this.setData({ fontClass: '' })
     this.applyDirection(0)
   },
 
@@ -87,6 +103,7 @@ Page({
       await createTimelineItem({
         type: 'transfer',
         direction: dir.key,
+        fromRole: dir.fromRole,
         amount,
         currency: 'CNY',
         category: this.data.categories[this.data.categoryIndex],

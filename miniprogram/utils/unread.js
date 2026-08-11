@@ -44,19 +44,9 @@ async function refreshTimelineBadge() {
   }
 }
 
-/** 爸妈打开时光轴后：以列表最新一条时间戳为已读线 */
-function markTimelineReadFromList(list) {
-  let ts = Date.now()
-  if (Array.isArray(list) && list.length) {
-    const maxCreated = Math.max(...list.map((item) => item.createdAt || 0))
-    if (maxCreated > 0) ts = Math.max(ts, maxCreated)
-  }
-  setLastReadAt(ts)
-  applyTabBadge(0)
-}
-
 function markTimelineRead() {
-  markTimelineReadFromList([])
+  setLastReadAt(Date.now())
+  applyTabBadge(0)
 }
 
 module.exports = {
@@ -66,6 +56,5 @@ module.exports = {
   countUnread,
   applyTabBadge,
   refreshTimelineBadge,
-  markTimelineRead,
-  markTimelineReadFromList
+  markTimelineRead
 }
