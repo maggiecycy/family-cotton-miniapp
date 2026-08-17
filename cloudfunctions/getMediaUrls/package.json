@@ -1,0 +1,9 @@
+{
+  "name": "getMediaUrls",
+  "version": "1.0.0",
+  "description": "管理员权限换取云存储临时 HTTPS 链接，供家庭成员跨账号查看",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

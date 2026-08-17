@@ -109,6 +109,8 @@ function ensureWritePhotosAlbum() {
   return ensureScope('scope.writePhotosAlbum', '添加到相册')
 }
 
+const { resolveCloudUrl, isCloudFileId } = require('./media')
+
 /**
  * 保存图片到系统相册（支持本地路径 / 网络 / 云 fileID）
  */
@@ -122,9 +124,8 @@ async function saveImageToAlbum(src) {
 
   try {
     let filePath = src
-    if (/^cloud:\/\//.test(src)) {
-      const res = await wx.cloud.getTempFileURL({ fileList: [src] })
-      const url = res.fileList && res.fileList[0] && res.fileList[0].tempFileURL
+    if (isCloudFileId(src)) {
+      const url = await resolveCloudUrl(src)
       if (!url) throw new Error('cloud url empty')
       const dl = await new Promise((resolve, reject) => {
         wx.downloadFile({

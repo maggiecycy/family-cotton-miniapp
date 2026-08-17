@@ -17,6 +17,7 @@
    - `cloudfunctions/saveSubscribe`（存订阅授权）
    - `cloudfunctions/sendNotify`（发订阅推送）
    - `cloudfunctions/checkFestival`（节日定时提醒）
+   - `cloudfunctions/getMediaUrls`（免费环境跨账号看图/语音临时链）
 4. 云开发控制台创建集合：`users`、`families`、`timeline`、`daily_lines`
 5. 云存储可用路径：
    - `voices/{familyId}/...`

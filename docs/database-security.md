@@ -46,11 +46,23 @@
 路径建议：
 
 - `voices/{familyId}/{timestamp}.mp3`
+- `photos/{familyId}/{timestamp}.jpg`
 - `notes/{familyId}/{timestamp}_{i}.jpg`
 
 - 同家庭可读
 - 仅女儿可写
 - 禁止匿名公开读
+
+### 照片空白转圈（必查）
+
+库里有记录、卡片能出来，但图片一直转圈：
+
+1. **免费套餐往往改不了云存储权限**（会提示升级）——不必强行改权限
+2. 已提供云函数 **`getMediaUrls`**：用管理员权限换临时 HTTPS 链接，妈妈端可看女儿上传的图
+3. 请右键部署 `cloudfunctions/getMediaUrls`（云端安装依赖）后重新编译
+4. 若仍失败：看控制台是否有 `getMediaUrls call failed` / `status != 0`
+
+以后若升级付费，也可把存储改成「所有用户可读，仅创建者可写」，效果类似。
 
 ## timeline.transfer 字段补充
 

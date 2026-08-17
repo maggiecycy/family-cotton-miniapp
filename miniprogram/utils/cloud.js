@@ -9,6 +9,7 @@ const { todayKey } = require('./date')
 const { addTransfer, getTransferTimeline, getTransferStats } = require('./transferLedger')
 const { getPhotos, addPhoto, removePhoto } = require('./photoWall')
 const { getRole } = require('./auth')
+const { resolveTimelineMedia } = require('./media')
 
 function isDemo() {
   try {
@@ -104,14 +105,14 @@ async function fetchTimeline(filter = 'all') {
   }
 
   if (isDemo() || !isCloudReady()) {
-    return localTimeline(filter)
+    return resolveTimelineMedia(localTimeline(filter))
   }
 
   try {
     const db = wx.cloud.database()
     const familyId = getApp().globalData.familyId
     if (!familyId) {
-      return localTimeline(filter)
+      return resolveTimelineMedia(localTimeline(filter))
     }
     const where = { familyId }
     if (filter && filter !== 'all') where.type = filter
@@ -126,11 +127,11 @@ async function fetchTimeline(filter = 'all') {
       list.sort((a, b) => b.createdAt - a.createdAt)
     }
     // 云库空且本地有数据时，回退本地，避免空白
-    if (!list.length) return localTimeline(filter)
-    return list
+    if (!list.length) return resolveTimelineMedia(localTimeline(filter))
+    return resolveTimelineMedia(list)
   } catch (e) {
     console.warn('fetchTimeline cloud failed, fallback local', e)
-    return localTimeline(filter)
+    return resolveTimelineMedia(localTimeline(filter))
   }
 }
 
@@ -179,34 +180,35 @@ async function fetchDailyLine() {
 
 async function fetchPhotos() {
   const local = getPhotos()
-  if (isDemo() || !isCloudReady()) {
-    return local
+  let list = local
+  if (!isDemo() && isCloudReady()) {
+    try {
+      const db = wx.cloud.database()
+      const familyId = getApp().globalData.familyId
+      if (familyId) {
+        const res = await db
+          .collection('timeline')
+          .where({ familyId, type: 'photo' })
+          .orderBy('createdAt', 'desc')
+          .get()
+        const cloud = res.data || []
+        const map = {}
+        cloud.forEach((p) => {
+          if (p && p._id) map[p._id] = p
+        })
+        local.forEach((p) => {
+          if (p && p._id && !map[p._id]) map[p._id] = p
+        })
+        list = Object.keys(map)
+          .map((k) => map[k])
+          .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
+      }
+    } catch (e) {
+      console.warn('fetchPhotos failed', e)
+      list = local
+    }
   }
-  try {
-    const db = wx.cloud.database()
-    const familyId = getApp().globalData.familyId
-    if (!familyId) return local
-    const res = await db
-      .collection('timeline')
-      .where({ familyId, type: 'photo' })
-      .orderBy('createdAt', 'desc')
-      .get()
-    const cloud = res.data || []
-    // 合并：云端为主，本地补漏（同机切身份时也能看到刚传的）
-    const map = {}
-    cloud.forEach((p) => {
-      if (p && p._id) map[p._id] = p
-    })
-    local.forEach((p) => {
-      if (p && p._id && !map[p._id]) map[p._id] = p
-    })
-    return Object.keys(map)
-      .map((k) => map[k])
-      .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
-  } catch (e) {
-    console.warn('fetchPhotos failed', e)
-    return local
-  }
+  return resolveTimelineMedia(list)
 }
 
 async function createTimelineItem(payload) {
